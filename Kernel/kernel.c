@@ -11,10 +11,12 @@ adresse mémoire vidéo = 0xB8000 + (index linéaire * 2)
 */
 
 //on call les fonctions pour les tests
-extern void fprint(const char *str);
+
+extern void fprint(const char *str, const int y);
 
 void _start(){
-    fprint("coucouc");
+    fprint("Welcome to Oscour my OS",0);
+    fprint("Made by Matheo   0.4", 1);
 }
 
 

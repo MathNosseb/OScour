@@ -1,5 +1,4 @@
-void fprint(const char *str) {
-    int y = 0;
+void fprint(const char *str, const int y) {
     int x = 0;
     int index = y * 80 + x;
     int addrVideo = 0xB8000 + (index*2);

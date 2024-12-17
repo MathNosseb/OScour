@@ -21,6 +21,12 @@ if [ "$query" == "y" ]; then
     i386-elf-ld -o "Binaries/full_kernel.bin" -Ttext 0x1000 "Binaries/kernel_entry.o" "Binaries/fprint.o" "Binaries/kernel.o" --oformat binary
 
     cat "Binaries/boot.bin" "Binaries/full_kernel.bin" "Binaries/zeroes.bin"  > "Binaries/OS.bin"
+    dd if=Binaries/OS.bin of=Binaries/Oscour.img bs=512
+
+    dd if=/dev/zero of=Binaries/NewOscour.img bs=512 count=2048
+    dd if=Binaries/Oscour.img of=Binaries/NewOscour.img conv=notrunc
+    rm Binaries/Oscour.img
+    mv Binaries/NewOscour.img Binaries/Oscour.img
 
     qemu-system-x86_64 -drive format=raw,file="Binaries/OS.bin",index=0,if=floppy,  -m 128M
 fi

@@ -96,6 +96,12 @@ char *readKey() {
         if (scancode == 0x31) {
             return "n";
         }
+        if (scancode == 0x39) {
+            return " ";
+        }
+        if (scancode == 0x1C) {
+            return "\n";
+        }
 
 
         return "";  // Retourne la chaîne hexadécimale

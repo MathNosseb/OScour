@@ -5,6 +5,19 @@
 int cursor_x = 0;  // Position actuelle de la colonne
 int cursor_y = 0;  // Position actuelle de la ligne
 
+void move_line_up(int src_line, int dest_line){
+    for (int x = 0; x < SCREEN_WIDTH; x++) {
+        // Adresse de la ligne source
+        int src_addr = VIDEO_MEMORY + ((src_line * SCREEN_WIDTH + x) * BYTES_PER_CHAR);
+        // Adresse de la ligne destination
+        int dest_addr = VIDEO_MEMORY + ((dest_line * SCREEN_WIDTH + x) * BYTES_PER_CHAR);
+        
+        // Copie le caractère et l'attribut
+        *(unsigned short*)dest_addr = *(unsigned short*)src_addr;
+    }
+
+}
+
 void fprint(const char *str) {
     for (int i = 0; str[i] != '\0'; i++) {
         if (str[i] == '\n') {  // Gère un retour à la ligne
@@ -22,11 +35,13 @@ void fprint(const char *str) {
             cursor_x = 0;
             cursor_y++;
         }
-
+        
         // Évite de dépasser l'écran (pas de scroll)
         if (cursor_y >= SCREEN_HEIGHT) {
             cursor_y = SCREEN_HEIGHT - 1;
             cursor_x = 0;  // Écrit toujours sur la dernière ligne si l'écran est plein
         }
+        
+        
     }
 }

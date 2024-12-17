@@ -16,7 +16,7 @@ extern void fprint(const char *str, const int y);
 
 void _start(){
     fprint("Welcome to Oscour my OS",0);
-    fprint("Made by Matheo   0.4", 1);
+    fprint("Made by Matheo   0.41", 1);
 }
 
 

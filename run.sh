@@ -11,8 +11,6 @@ if [ "$query" == "y" ]; then
 
     export PATH=$PATH:/usr/local/i386elfgcc/bin
 
-    dd if=/dev/zero of=NewOscour.img bs=512 count=2048
-
     nasm "bootloader/boot.asm" -f bin -o "Binaries/boot.bin"
     nasm "bootloader/kernel_entry.asm" -f elf -o "Binaries/kernel_entry.o"
     i386-elf-gcc -ffreestanding -m32 -g -c "Kernel/kernel.c" -o "Binaries/kernel.o"
@@ -25,6 +23,10 @@ if [ "$query" == "y" ]; then
     cat "Binaries/boot.bin" "Binaries/full_kernel.bin" "Binaries/zeroes.bin"  > "Binaries/OS.bin"
     dd if=Binaries/OS.bin of=Binaries/Oscour.img bs=512
 
+    dd if=/dev/zero of=Binaries/NewOscour.img bs=512 count=2048
+    dd if=Binaries/Oscour.img of=Binaries/NewOscour.img conv=notrunc
+    rm Binaries/Oscour.img
+    mv Binaries/NewOscour.img Binaries/Oscour.img
 
     qemu-system-x86_64 -drive format=raw,file="Binaries/OS.bin",index=0,if=floppy,  -m 128M
 fi

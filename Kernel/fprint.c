@@ -1,22 +1,20 @@
 #define VIDEO_MEMORY 0xB8000
 #define SCREEN_WIDTH 80
 #define SCREEN_HEIGHT 25
+#define BYTES_PER_CHAR 2
+
+void outb(unsigned short port, unsigned char value);
+
+typedef unsigned short uint16_t;
+typedef unsigned char uint8_t;
 
 int cursor_x = 0;  // Position actuelle de la colonne
 int cursor_y = 0;  // Position actuelle de la ligne
 
-void move_line_up(int src_line, int dest_line){
-    for (int x = 0; x < SCREEN_WIDTH; x++) {
-        // Adresse de la ligne source
-        int src_addr = VIDEO_MEMORY + ((src_line * SCREEN_WIDTH + x) * BYTES_PER_CHAR);
-        // Adresse de la ligne destination
-        int dest_addr = VIDEO_MEMORY + ((dest_line * SCREEN_WIDTH + x) * BYTES_PER_CHAR);
-        
-        // Copie le caractère et l'attribut
-        *(unsigned short*)dest_addr = *(unsigned short*)src_addr;
-    }
 
-}
+#define LINE_LENGTH 80
+#define NUM_LINES 25
+
 
 void fprint(const char *str) {
     for (int i = 0; str[i] != '\0'; i++) {
@@ -35,13 +33,14 @@ void fprint(const char *str) {
             cursor_x = 0;
             cursor_y++;
         }
-        
-        // Évite de dépasser l'écran (pas de scroll)
-        if (cursor_y >= SCREEN_HEIGHT) {
-            cursor_y = SCREEN_HEIGHT - 1;
-            cursor_x = 0;  // Écrit toujours sur la dernière ligne si l'écran est plein
-        }
-        
-        
+
+        //mouvement du curseur
+        unsigned short position = cursor_y * SCREEN_WIDTH + cursor_x;
+        outb(0x3D4, 0x0F);
+        outb(0x3D5, (unsigned char)(position & 0xFF));
+        outb(0x3D4, 0x0E); // Sélectionner l'octet de poids fort
+        outb(0x3D5, (unsigned char)((position >> 8) & 0xFF));
+
     }
+
 }

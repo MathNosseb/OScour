@@ -7,6 +7,7 @@ int is_key_ready() {
 }
 
 
+
 char *readKey() {
     static char buffer[4];  // Static pour que la mémoire reste valide
     if (is_key_ready()) {
@@ -18,6 +19,12 @@ char *readKey() {
         buffer[2] = '\0';
 
         // Exemple : Si le scancode est 0x10, retourner "a"
+        if (scancode == 0x39) {
+            return " ";
+        }
+        if (scancode == 0x9C) {
+            return "\n";
+        }
         if (scancode == 0x10) {
             return "a";
         }
@@ -96,13 +103,7 @@ char *readKey() {
         if (scancode == 0x31) {
             return "n";
         }
-        if (scancode == 0x39) {
-            return " ";
-        }
-        if (scancode == 0x1C) {
-            return "\n";
-        }
-
+        
 
         return "";  // Retourne la chaîne hexadécimale
     }

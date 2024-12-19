@@ -1,19 +1,15 @@
 #define VIDEO_MEMORY 0xB8000
 #define SCREEN_WIDTH 80
 #define SCREEN_HEIGHT 25
-#define BYTES_PER_CHAR 2
 
+
+//petit outb pour envoyer la position du curseur
 void outb(unsigned short port, unsigned char value);
 
-typedef unsigned short uint16_t;
-typedef unsigned char uint8_t;
 
 int cursor_x = 0;  // Position actuelle de la colonne
 int cursor_y = 0;  // Position actuelle de la ligne
 
-
-#define LINE_LENGTH 80
-#define NUM_LINES 25
 
 
 void fprint(const char *str) {
@@ -24,7 +20,7 @@ void fprint(const char *str) {
         } else {
             int addr = VIDEO_MEMORY + ((cursor_y * SCREEN_WIDTH + cursor_x) * 2);
             *(char*)addr = str[i];
-            *(char*)(addr + 1) = 0x07;  // Attribut (texte gris clair, fond noir)
+            *(char*)(addr + 1) = 0x02;  // Attribut (texte gris clair, fond noir)
             cursor_x++;
         }
 
@@ -33,6 +29,8 @@ void fprint(const char *str) {
             cursor_x = 0;
             cursor_y++;
         }
+        
+        
 
         //mouvement du curseur
         unsigned short position = cursor_y * SCREEN_WIDTH + cursor_x;

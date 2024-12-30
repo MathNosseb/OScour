@@ -6,6 +6,7 @@ if [ "$query" == "y" ]; then
     git push
 fi
 
+
 read -p "run script?    (y/n)   " query
 if [ "$query" == "y" ]; then
 

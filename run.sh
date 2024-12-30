@@ -5,6 +5,7 @@ if [ "$query" == "y" ]; then
     git commit -m "$commit"
     git push
 fi
+#d
 
 read -p "run script?    (y/n)   " query
 if [ "$query" == "y" ]; then

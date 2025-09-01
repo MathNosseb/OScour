@@ -1,35 +1,25 @@
-read -p "push? (y/n) " query
-if [ "$query" == "y" ]; then
-    git add .
-    read -p "Enter commit message: " commit
-    git commit -m "$commit"
-    git push
-fi
+#!/bin/bash
+set -e
 
+rm -rf Binaries
+mkdir -p Binaries
 
-read -p "run script?    (y/n)   " query
-if [ "$query" == "y" ]; then
+nasm bootloader/boot.asm -f bin -o Binaries/bootloader.bin
 
-    export PATH=$PATH:/usr/local/i386elfgcc/bin
+i386-elf-gcc -m32 -ffreestanding -fno-pie -fno-stack-protector -O2 \
+  -Wall -Wextra -c kernel/kernel.c -o Binaries/kernel.o
 
-    nasm "bootloader/boot.asm" -f bin -o "Binaries/boot.bin"
-    nasm "bootloader/kernel_entry.asm" -f elf -o "Binaries/kernel_entry.o"
-    i386-elf-gcc -ffreestanding -m32 -g -O0 -c "Kernel/kernel.c" -o "Binaries/kernel.o"
-    i386-elf-gcc -ffreestanding -m32 -g -O0 -c "Kernel/fprint.c" -o "Binaries/fprint.o"
-    i386-elf-gcc -ffreestanding -m32 -g -O0 -c "Kernel/keyboard.c" -o "Binaries/keyboard.o"
-    i386-elf-gcc -ffreestanding -m32 -g -O0 -c "Kernel/request.c" -o "Binaries/request.o"
+i386-elf-ld -nostdlib -T linker.ld -z max-page-size=0x1000 \
+  -o Binaries/kernel.elf Binaries/kernel.o
 
-    nasm "bootloader/zeroes.asm" -f bin -o "Binaries/zeroes.bin"
+i386-elf-objcopy -O binary Binaries/kernel.elf Binaries/kernel.bin
 
-    i386-elf-ld -o "Binaries/full_kernel.bin" -Ttext 0x1000 "Binaries/kernel_entry.o" "Binaries/request.o" "Binaries/keyboard.o" "Binaries/fprint.o" "Binaries/kernel.o" --oformat binary
+dd if=/dev/zero of=Binaries/disk.img bs=512 count=4096
+dd if=Binaries/bootloader.bin of=Binaries/disk.img bs=512 conv=notrunc
+dd if=Binaries/kernel.bin     of=Binaries/disk.img bs=512 seek=1 conv=notrunc
 
-    cat "Binaries/boot.bin" "Binaries/full_kernel.bin" "Binaries/zeroes.bin"  > "Binaries/OS.bin"
-    dd if=Binaries/OS.bin of=Binaries/Oscour.img bs=512
+# Optionnel: voir la taille
+stat -c "kernel.bin: %s bytes" Binaries/kernel.bin
 
-    dd if=/dev/zero of=Binaries/NewOscour.img bs=512 count=2048
-    dd if=Binaries/Oscour.img of=Binaries/NewOscour.img conv=notrunc
-    rm Binaries/Oscour.img
-    mv Binaries/NewOscour.img Binaries/Oscour.img
-
-    qemu-system-x86_64 -drive format=raw,file="Binaries/OS.bin",index=0,if=floppy,  -m 128M
-fi
+# QEMU en mode “no reboot” pour diagnostiquer une triple fault:
+LD_PRELOAD=/lib/x86_64-linux-gnu/libpthread.so.0 LD_LIBRARY_PATH=/lib/x86_64-linux-gnu:/usr/lib/x86_64-linux-gnu qemu-system-x86_64 -drive format=raw,file=Binaries/disk.img -m 128M -no-reboot

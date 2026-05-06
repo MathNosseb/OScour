@@ -1,89 +1,106 @@
-[org 0x7c00]                        
+[org 0x7c00]    
+
 KERNEL_LOCATION equ 0x1000
-                                    
 
-mov [BOOT_DISK], dl                 
+mov ah, 0x00
+mov al, 0x03    ; mode texte 80x25
+int 0x10
 
-                                    
 xor ax, ax                          
 mov es, ax
-mov ds, ax
-mov bp, 0x8000
-mov sp, bp
-
+mov byte [diskNUM], dl
 mov bx, KERNEL_LOCATION
-mov dh, 2
-
-mov ah, 0x02
-mov al, dh 
-mov ch, 0x00
-mov dh, 0x00
-mov cl, 0x02
-mov dl, [BOOT_DISK]
-int 0x13                ; no error management, do your homework!
-
-                                    
-mov ah, 0x0
-mov al, 0x3
-int 0x10                ; text mode
-
-CODE_SEG equ GDT_code - GDT_start
-DATA_SEG equ GDT_data - GDT_start
-
-cli
-lgdt [GDT_descriptor]
-mov eax, cr0
-or eax, 1
-mov cr0, eax
-jmp CODE_SEG:start_protected_mode
-
-jmp $
-                                    
-BOOT_DISK: db 0
-
-GDT_start:
-    GDT_null:
-        dd 0x0
-        dd 0x0
-
-    GDT_code:
-        dw 0xffff
-        dw 0x0
-        db 0x0
-        db 0b10011010
-        db 0b11001111
-        db 0x0
-
-    GDT_data:
-        dw 0xffff
-        dw 0x0
-        db 0x0
-        db 0b10010010
-        db 0b11001111
-        db 0x0
-
-GDT_end:
-
-GDT_descriptor:
-    dw GDT_end - GDT_start - 1
-    dd GDT_start
+jmp .load_kernel
 
 
-[bits 32]
-start_protected_mode:
-    mov ax, DATA_SEG
-	mov ds, ax
-	mov ss, ax
-	mov es, ax
-	mov fs, ax
-	mov gs, ax
-	
-	mov ebp, 0x90000		; 32 bit stack base pointer
+.load_kernel:
+    mov ah, 0x02 ; Fonction de lecture de secteur
+    mov al, 4   ; Nombre de secteurs à lire
+    mov ch, 0x00    ; Cylindre 0
+    mov cl, 0x02    ; Secteur 9 (le premier secteur est le secteur
+    mov dh, 0x00    ; Tête 0
+    mov dl, [diskNUM] ; Numéro du disque
+
+    int 0x13 ; Appel de l'interruption pour lire le secteur
+    mov si, diskerror ; Si l'erreur est présente, on saute à l'étiquette .error_disk
+    jc .error_disk ; Si l'erreur est présente, on saute à l'étiquette .error_disk
+    mov si, message ; Si l'erreur n'est pas présente, on saute à l'étiquette .print
+    jmp .print
+
+    
+
+.error_disk:
+    cmp byte [si], 0
+    je .error_disk
+    mov ah,0x0E
+    mov al, [si]
+    int 0x10
+    inc si
+    jmp .error_disk
+
+.print:
+    
+    cmp byte [si], 0
+    je .go_to_32bits
+    mov ah,0x0E
+    mov al, [si]
+    int 0x10
+    inc si
+    jmp .print
+
+.go_to_32bits:
+    cli ; desactivation des iterruptions 
+
+
+    lgdt [gdt_descriptor]                  ; Charge la GDT
+
+    ;--- Passer en mode protégé ---
+    ;en gros pour passer en mode protégé, il faut activer le bit 1 du registre CR0
+    mov eax, cr0
+    or eax, 0x1                            ; Activer le mode protégé
+    mov cr0, eax
+    jmp 0x08:.32bits
+
+
+[BITS 32]
+.32bits:
+    
+    mov ax, 0x10  ; sélecteur du data segment dans ta GDT
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
+    mov ss, ax
+    mov ebp, 0x90000		; 32 bit stack base pointer
 	mov esp, ebp
-
     jmp KERNEL_LOCATION
 
-                                     
- 
-times 510-($-$$) db 0              
-dw 0xaa55
+
+.done:
+    hlt ; Arrêter l'exécution
+    jmp .done ; Boucle infinie pour éviter de sortir du programme
+
+
+; ---------------------
+; GDT : placer après le code (ou dans un segment dédié)
+; ---------------------
+;Totalement copié collé de github copilot (merci mon gars)
+gdt_start:
+    dq 0x0000000000000000        ; Null descriptor
+    dq 0x00CF9A000000FFFF        ; Code segment (base=0, limit=4GB, exec/read)
+    dq 0x00CF92000000FFFF        ; Data segment (base=0, limit=4GB, read/write)
+gdt_end:
+
+gdt_descriptor:
+    dw gdt_end - gdt_start - 1   ; Limit (taille - 1)
+    dd gdt_start                 ; Adresse base
+
+diskNUM: db 0
+
+message:
+    db "Booting in OScour",0x0D, 0x0A, 0
+diskerror:
+    db "Disk error!",0x0D, 0x0A, 0
+
+times 510 - ($ - $$) db 0
+dw 0xAA55 ; signature boot

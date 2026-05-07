@@ -29,7 +29,7 @@ void detect_command()
     if (compare_first_word_buffer("echo ", get_command()))
     {
         vga_putchar("\n");
-        //vga_putchar(del_prefix(&get_command));
+        vga_putchar(del_prefix(get_command()));
         reconnu = 1;
     }
 
@@ -67,31 +67,18 @@ int compare_first_word_buffer(char *word, char *buffer)
 
 char *del_prefix(char *buffer)
 {
-    clear_buffer(sanitized_command,256);
-    int index = 0;
-    int sanitize_index = 0;
-    int valid = 0;
-    int len_buffer = 0;
-    while (buffer[len_buffer] != '\0')
-    {
-        len_buffer++;
-    }
-    
-    while (!valid)
-    {
-        if (buffer[index] == ' ')
-        {
-            valid == 1;
-        }
-        index++;
-        
-    }
+    int i = 0;
 
-    for (int i = 0; i < len_buffer-index; i++)
-    {
-        sanitized_command[sanitize_index] = buffer[len_buffer - index + i];
-    }
-    
-    return sanitized_command;
+    // avancer jusqu'à l'espace ou fin de chaîne
+    while (buffer[i] != ' ' && buffer[i] != '\0')
+        i++;
+
+    // si on est sur un espace, le sauter
+    if (buffer[i] == ' ')
+        i++;
+
+    // retourne l'adresse du reste
+    return &buffer[i];
+
 
 }

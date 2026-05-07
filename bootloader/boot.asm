@@ -15,7 +15,7 @@ jmp .load_kernel
 
 .load_kernel:
     mov ah, 0x02 ; Fonction de lecture de secteur
-    mov al, 4   ; Nombre de secteurs à lire
+    mov al, 7   ; Nombre de secteurs à lire
     mov ch, 0x00    ; Cylindre 0
     mov cl, 0x02    ; Secteur 9 (le premier secteur est le secteur
     mov dh, 0x00    ; Tête 0
@@ -98,7 +98,7 @@ gdt_descriptor:
 diskNUM: db 0
 
 message:
-    db "Booting in OScour",0x0D, 0x0A, 0
+    db "                               Booting in OScour",0x0D, 0x0A, 0
 diskerror:
     db "Disk error!",0x0D, 0x0A, 0
 

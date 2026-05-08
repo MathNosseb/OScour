@@ -1,6 +1,6 @@
 #include "keyboard.h"
-#include "struct.h"
-#include "vga.h"
+#include "../sys/struct.h"
+#include "../output/vga.h"
 
 char lineBuffer[256];
 uint8_t line_len = 0;

@@ -15,11 +15,15 @@ jmp .load_kernel
 
 .load_kernel:
     mov ah, 0x02 ; Fonction de lecture de secteur
-    mov al, 7   ; Nombre de secteurs à lire
+    mov al, 10   ; Nombre de secteurs à lire
     mov ch, 0x00    ; Cylindre 0
     mov cl, 0x02    ; Secteur 9 (le premier secteur est le secteur
     mov dh, 0x00    ; Tête 0
     mov dl, [diskNUM] ; Numéro du disque
+
+    ;stocker le nombre de secteurs a lire dans la ram pour la recuperer dans le kernel
+    ;stocker a l adresse 0x00500, de 0x00500 a 0x00FFF c'est libre
+    mov byte [0x500], al
 
     int 0x13 ; Appel de l'interruption pour lire le secteur
     mov si, diskerror ; Si l'erreur est présente, on saute à l'étiquette .error_disk
@@ -71,7 +75,7 @@ jmp .load_kernel
     mov fs, ax
     mov gs, ax
     mov ss, ax
-    mov ebp, 0x90000		; 32 bit stack base pointer
+    mov ebp, 0x80000		; 32 bit stack base pointer adresse de la stack (le debut) -> grandit vers le bas
 	mov esp, ebp
     jmp KERNEL_LOCATION
 

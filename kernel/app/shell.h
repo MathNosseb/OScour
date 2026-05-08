@@ -1,6 +1,6 @@
-#include "vga.h"
-#include "struct.h"
-#include "keyboard.h"
+#include "../output/vga.h"
+#include "../sys/struct.h"
+#include "../input/keyboard.h"
 void detect_command();
 int compare_word_buff(char *, char *);
 int compare_first_word_buffer(char *, char *);

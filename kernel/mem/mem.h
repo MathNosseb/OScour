@@ -1,0 +1,1 @@
+#define STACK_START 0x100000

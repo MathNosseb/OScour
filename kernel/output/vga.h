@@ -1,4 +1,4 @@
-#include "struct.h"
+#include "../sys/struct.h"
 #define VIDEO_MEMORY     0xB8000
 #define WHITE_ON_BLACK   0x07
 #define GREEN_ON_BLACK   0x02

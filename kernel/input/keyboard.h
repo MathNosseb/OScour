@@ -1,4 +1,4 @@
-#include "struct.h"
+#include "../sys/struct.h"
 
 int detect_buffer();
 uint8_t key_pressed();

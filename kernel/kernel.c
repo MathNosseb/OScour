@@ -1,7 +1,9 @@
-#include "vga.h"
-#include "struct.h"
-#include "keyboard.h"
-#include "shell.h"
+#include "output/vga.h"
+#include "sys/struct.h"
+#include "sys/string.h"
+#include "sys/hex.h"
+#include "input/keyboard.h"
+#include "app/shell.h"
 
 
 void _start() {
@@ -15,7 +17,20 @@ void _start() {
     vga_putchar(" | |__| |____) | (_| (_) | |_| | |     \\ V // /_ \n");
     vga_putchar("  \\____/|_____/ \\___\\___/ \\__,_|_|      \\_/|____|\n");
     vga_puchar_color("Oscour made by mathnosseb v2.0.1\n", CYAN_ON_BLACK);
-    vga_puchar_color("root@local:", GREEN_ON_BLACK);
+    char secteurs[1];
+    char stack[7];
+    int nbr_secteur = *(int *)0x500; //nombre de secteurs chargé
+    uint32_t kernel_size = nbr_secteur * 512;
+    uint32_t emplacement = kernel_size + 0x1000;
+    uint32_t stack_size = 0x80000 - emplacement;
+    int_to_char(nbr_secteur,secteurs);
+    int_to_char(stack_size, stack);
+    vga_puchar_color(secteurs, CYAN_ON_BLACK); vga_puchar_color(" secteurs, ", CYAN_ON_BLACK); 
+    vga_puchar_color(stack, CYAN_ON_BLACK); vga_puchar_color(" Octets de stack dispo", CYAN_ON_BLACK); 
+    
+    vga_puchar_color("\nroot@local:", GREEN_ON_BLACK);
+    
+
     while (1) {
         update_cursor();
 
@@ -35,16 +50,3 @@ void _start() {
         }        
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-

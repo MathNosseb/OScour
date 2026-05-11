@@ -4,7 +4,7 @@
 #include "sys/hex.h"
 #include "input/keyboard.h"
 #include "app/shell.h"
-
+#include "mem/mem.h"
 
 void _start() {
 
@@ -29,6 +29,17 @@ void _start() {
     vga_puchar_color(stack, CYAN_ON_BLACK); vga_puchar_color(" Octets de stack dispo", CYAN_ON_BLACK); 
     
     vga_puchar_color("\nroot@local:", GREEN_ON_BLACK);
+    
+    char value[11];
+    char *adr = allocate(5);
+    adr[0] = 'A';
+    adr[1] = '\0';
+    int_to_hex((uint32_t)adr, value); 
+    vga_putchar(value);
+
+    int *adr2 = allocate(100);
+    int_to_hex((uint32_t)adr2, value);
+    vga_putchar(value);
     
 
     while (1) {

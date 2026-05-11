@@ -1,1 +1,4 @@
-#define STACK_START 0x100000
+#include "../sys/struct.h"
+#define HEAP_START 0x100000
+
+void *allocate(int);

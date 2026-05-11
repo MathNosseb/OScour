@@ -15,7 +15,7 @@ jmp .load_kernel
 
 .load_kernel:
     mov ah, 0x02 ; Fonction de lecture de secteur
-    mov al, 10   ; Nombre de secteurs à lire
+    mov al, 11   ; Nombre de secteurs à lire
     mov ch, 0x00    ; Cylindre 0
     mov cl, 0x02    ; Secteur 9 (le premier secteur est le secteur
     mov dh, 0x00    ; Tête 0

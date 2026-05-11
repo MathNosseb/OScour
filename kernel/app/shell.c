@@ -4,7 +4,7 @@ char sanitized_command[256];
 
 void detect_command()
 {
-    //char * command = sanitize_command(get_command());
+    char *command = get_command();
     
     int reconnu = 0;
 

@@ -1,4 +1,7 @@
 #include "string.h"
+#include "struct.h"
+#include "../mem/mem.h"
+#include "../output/vga.h"
 void reverse_string(char *str) {
     int i = 0;
     int j = 0;
@@ -48,4 +51,68 @@ void int_to_char(int nbr, char *texte)
 
     reverse_string(texte);
 
+}
+
+int len_string(char *texte)
+{
+    int index = 0;
+    while (texte[index] != 0)
+    {
+        index++;
+    }
+    return index;    
+}
+
+char *replace_char(char *str, char from, char by)
+{
+    for (int i = 0; str[i] != '\0'; i++)
+    {
+        if (str[i] == from)
+            str[i] = by;
+    }
+    return str;
+}
+
+char **split_words(char *str, int *count)
+{
+    int i = 0;
+    int words = 0;
+
+    // compter
+    while (str[i])
+    {
+        if (str[i] != ' ' && (i == 0 || str[i - 1] == ' '))
+            words++;
+        i++;
+    }
+
+    *count = words;
+
+    char **mot = allocate(sizeof(char *) * words);
+
+    i = 0;
+    int idx = 0;
+
+    while (str[i])
+    {
+        // skip spaces
+        while (str[i] == ' ')
+            i++;
+
+        if (!str[i])
+            break;
+
+        mot[idx++] = &str[i];
+
+        while (str[i] && str[i] != ' ')
+            i++;
+
+        if (str[i] == ' ')
+        {
+            str[i] = '\0';
+            i++;
+        }
+    }
+
+    return mot;
 }

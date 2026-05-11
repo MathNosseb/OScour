@@ -9,7 +9,6 @@ struct heap
     uint32_t end;//adresse de fin
 };
 
-
 /*
 
 La fonction d'allocation fonctionne comme ca:

@@ -30,16 +30,16 @@ void _start() {
     
     vga_puchar_color("\nroot@local:", GREEN_ON_BLACK);
     
-    char value[11];
+    char value[80];
     char *adr = allocate(5);
     adr[0] = 'A';
     adr[1] = '\0';
     int_to_hex((uint32_t)adr, value); 
-    vga_putchar(value);
 
     int *adr2 = allocate(100);
     int_to_hex((uint32_t)adr2, value);
-    vga_putchar(value);
+    
+    
     
 
     while (1) {

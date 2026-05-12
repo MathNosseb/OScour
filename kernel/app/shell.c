@@ -65,16 +65,16 @@ void detect_command()
             free(argv); 
             return;
         } 
-        int adr = char_to_int(argv[1]);
-        free((uint32_t *)adr);
+        
+        free((uint32_t *)hex_to_int(argv[1]));
         reconnu = 1;
     }
     if (compare_word_buff("dump", argv[0]))
     {
-        //free(argv);//on clean la memoire pour pas avoir de residus de commandes
+        free(argv);//on clean la memoire pour pas avoir de residus de commandes
         dump_heap();
         reconnu = 1;
-        //return;
+        return;
     }
 
     if (!reconnu) vga_puchar_color("\ncommande non reconnu", RED_ON_BLACK);

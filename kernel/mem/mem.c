@@ -58,13 +58,13 @@ void dump_heap()
         char flag[5]; int_to_char(h->flag, flag);
         char size[5]; int_to_char(h->size, size);
         char free[5]; int_to_char(h->free, free);
-        char prec[20]; int_to_char(h->precedent, prec);
-        char suiv[20]; int_to_char(h->suivant, suiv);
-        char adrr[20]; int_to_char((uint32_t)h, adrr);
-        char val_adr[20]; int_to_char((uint32_t)((uint32_t)h+sizeof(struct heap)), val_adr);
+        char prec[20]; int_to_hex(h->precedent, prec);
+        char suiv[20]; int_to_hex(h->suivant, suiv);
+        char adrr[20]; int_to_hex((uint32_t)h, adrr);
+        char val_adr[20]; int_to_hex((uint32_t)((uint32_t)h+sizeof(struct heap)), val_adr);
         
-        vga_putchar(" bloc(");vga_putchar(number); vga_putchar(") flag:"); vga_putchar(flag);
-         vga_putchar(" size:"); vga_putchar(size);
+        vga_putchar("bloc(");vga_putchar(number); vga_putchar(") flag:"); vga_putchar(flag);
+        vga_putchar(" size:"); vga_putchar(size);
         vga_putchar(" free:");vga_putchar(free); vga_putchar(" prec:");vga_putchar(prec);
         vga_putchar(" suiv:");vga_putchar(suiv);vga_putchar(" adr:"); vga_putchar(adrr);
         vga_putchar(" val:"); vga_putchar(val_adr);

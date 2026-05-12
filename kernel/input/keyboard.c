@@ -59,6 +59,17 @@ char* scanCodeToChar(uint8_t scanCode)
     case 0x30: key = "b"; break;//b
     case 0x31: key = "n"; break;//n
 
+    case 0x02: key = "1"; break;
+    case 0x03: key = "2"; break;
+    case 0x04: key = "3"; break;
+    case 0x05: key = "4"; break;
+    case 0x06: key = "5"; break;
+    case 0x07: key = "6"; break;
+    case 0x08: key = "7"; break;
+    case 0x09: key = "8"; break;
+    case 0x0A: key = "9"; break;
+    case 0x0B: key = "0"; break;
+
     case 0x0E:
         if (line_len > 0)
         {

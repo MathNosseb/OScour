@@ -7,16 +7,8 @@
 #include "mem/mem.h"
 
 void _start() {
-
-    vga_puchar_color("\n                                   Boot Done\n",GREEN_ON_BLACK);
-    vga_putchar("                                    Welcome\n");
-    vga_putchar("   ____   _____                             ___  \n");
-    vga_putchar("  / __ \\ / ____|                           |__ \\ \n");
-    vga_putchar(" | |  | | (___   ___ ___  _   _ _ __  __   __ ) |\n");
-    vga_putchar(" | |  | |\\___ \\ / __/ _ \\| | | | '__| \\ \\ / // / \n");
-    vga_putchar(" | |__| |____) | (_| (_) | |_| | |     \\ V // /_ \n");
-    vga_putchar("  \\____/|_____/ \\___\\___/ \\__,_|_|      \\_/|____|\n");
-    vga_puchar_color("Oscour made by mathnosseb v2.0.1\n", CYAN_ON_BLACK);
+    load_art();
+    
     char secteurs[1];
     char stack[7];
     int nbr_secteur = *(int *)0x500; //nombre de secteurs chargé
@@ -29,22 +21,22 @@ void _start() {
     vga_puchar_color(stack, CYAN_ON_BLACK); vga_puchar_color(" Octets de stack dispo", CYAN_ON_BLACK); 
     
     vga_puchar_color("\nroot@local:", GREEN_ON_BLACK);
-    
-    char value[80];
-    char *adr = allocate(5);
-    adr[0] = 'A';
-    adr[1] = '\0';
-    int_to_hex((uint32_t)adr, value); 
-
-    int *adr2 = allocate(100);
-    int_to_hex((uint32_t)adr2, value);
-    
-    
-    
 
     while (1) {
+        //OUTPUT
         update_cursor();
+        
+        char heap_quantity[9];
+        char stack_quantity[9];
+        int heap_mem = get_heap_ram_usage();
+        int stack_mem = get_stack_ram_usage();
+        int_to_char(heap_mem, heap_quantity);
+        int_to_char(stack_mem, stack_quantity);
+        print_at(54,2, "heap "); print_at(60,2,heap_quantity); print_at(64,2, " octets");
+        print_at(54,3, "stack "); print_at(60,3,stack_quantity); print_at(64,3, " octets");
 
+
+        //INPUT + COMMAND
         if (detect_buffer())
         {
             uint8_t scancode = get_scancode();

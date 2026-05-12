@@ -15,3 +15,5 @@ void update_cursor();
 void set_cursor(int);
 int get_cursor();
 void clear_screen();
+void load_art();
+void print_at(int x, int y, char *text);

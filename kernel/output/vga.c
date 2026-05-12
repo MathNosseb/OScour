@@ -90,3 +90,30 @@ void clear_screen()
     
 }
 
+
+
+void load_art()
+{
+    vga_putchar("   ____   _____                             ___  \n");
+    vga_putchar("  / __ \\ / ____|                           |__ \\ \n");
+    vga_putchar(" | |  | | (___   ___ ___  _   _ _ __  __   __ ) |\n");
+    vga_putchar(" | |  | |\\___ \\ / __/ _ \\| | | | '__| \\ \\ / // / \n");
+    vga_putchar(" | |__| |____) | (_| (_) | |_| | |     \\ V // /_ \n");
+    vga_putchar("  \\____/|_____/ \\___\\___/ \\__,_|_|      \\_/|____|\n");
+    vga_puchar_color("Oscour made by mathnosseb v2.0.1\n", CYAN_ON_BLACK);
+}
+
+void print_at(int x, int y, char *text)
+{
+    volatile uint16_t* p;
+    p = (volatile uint16_t *)VIDEO_MEMORY;
+
+    int index = 0;
+    while (text[index] != '\0')
+    {
+        p[y * 80 + x + index] = (GREEN_ON_BLACK << 8) | text[index];
+        index++;
+    }
+
+    
+}

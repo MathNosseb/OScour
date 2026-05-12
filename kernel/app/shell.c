@@ -1,41 +1,62 @@
 #include "shell.h"
-
+#include "../mem/mem.h"
+#include "../sys/hex.h"
 char sanitized_command[256];
 
 void detect_command()
 {
     char *command = get_command();
+    int argc;
+    char **argv = split_words(command, &argc);
     
     int reconnu = 0;
 
-    if (compare_word_buff("clear", get_command()))
+    if (compare_word_buff("clear", argv[0]))
     {
         clear_screen();
         reconnu = 1;
     }
-    if (compare_word_buff("info", get_command()))
+    if (compare_word_buff("info", argv[0]))
     {
         clear_screen();
-        vga_putchar("   ____   _____                             ___  \n");
-        vga_putchar("  / __ \\ / ____|                           |__ \\ \n");
-        vga_putchar(" | |  | | (___   ___ ___  _   _ _ __  __   __ ) |\n");
-        vga_putchar(" | |  | |\\___ \\ / __/ _ \\| | | | '__| \\ \\ / // / \n");
-        vga_putchar(" | |__| |____) | (_| (_) | |_| | |     \\ V // /_ \n");
-        vga_putchar("  \\____/|_____/ \\___\\___/ \\__,_|_|      \\_/|____|\n");
-        vga_puchar_color("Oscour made by mathnosseb v2.0.1", CYAN_ON_BLACK);
+        load_art();
 
         reconnu = 1;
     }
-    if (compare_first_word_buffer("echo ", get_command()))
+    if (compare_word_buff("echo", argv[0]))
     {
         vga_putchar("\n");
-        vga_putchar(del_prefix(get_command()));
+        for (int index = 0; index < argc - 1; index++)
+        {
+            vga_putchar(argv[index + 1]);
+            vga_putchar(" ");
+        }
+        reconnu = 1;
+    }
+    if (compare_word_buff("allocate", argv[0]))
+    {
+        if (argc < 2) return;
+        char adresse[9];
+        //on aloue la ram a la valeur de argv[1]
+        int ram = char_to_int(argv[1]);
+        uint32_t *p = allocate(ram);
+        int_to_char((uint32_t)p, adresse);
+        vga_putchar("\n"); vga_putchar(adresse);
+        reconnu = 1;
+    }
+    if (compare_word_buff("free", argv[0]))
+    {
+        if (argc < 2) return;
+        int adr = char_to_int(argv[1]);
+        free((uint32_t *)adr);
         reconnu = 1;
     }
 
     if (!reconnu) vga_puchar_color("\ncommande non reconnu", RED_ON_BLACK);
     
     vga_putchar("\n");
+    free(argv);
+    
 
 }
 

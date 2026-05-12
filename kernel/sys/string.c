@@ -20,37 +20,36 @@ void reverse_string(char *str) {
     }
 }
 
-
 void int_to_char(int nbr, char *texte)
 {
-    //bug, inverse les nombres
-    int index = 0;
-    while (nbr > 0) {
-        int digit = nbr % 10; // dernier chiffre
-        nbr /= 10;
-
-        char nbr_text;
-        switch (digit)
-        {
-            case 0: nbr_text = '0'; break;
-            case 1: nbr_text = '1'; break;
-            case 2: nbr_text = '2'; break;
-            case 3: nbr_text = '3'; break;
-            case 4: nbr_text = '4'; break;
-            case 5: nbr_text = '5'; break;
-            case 6: nbr_text = '6'; break;
-            case 7: nbr_text = '7'; break;
-            case 8: nbr_text = '8'; break;
-            case 9: nbr_text = '9'; break;
-            default: break;
-        }
-
-        texte[index] = nbr_text;
-        index++;
+    if (nbr == 0) {
+        texte[0] = '0';
+        texte[1] = '\0';
+        return;
     }
 
-    reverse_string(texte);
+    int index = 0;
+    while (nbr > 0) {
+        texte[index++] = '0' + (nbr % 10);
+        nbr /= 10;
+    }
+    texte[index] = '\0';
 
+    reverse_string(texte);
+}
+
+int char_to_int(char *texte)
+{
+    int result = 0;
+    int i = 0;
+
+    while (texte[i] != '\0')
+    {
+        result = result * 10 + (texte[i] - '0');
+        i++;
+    }
+
+    return result;
 }
 
 int len_string(char *texte)

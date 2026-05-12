@@ -20,46 +20,11 @@ struct heap
 struct heap *precend_heap;
 
 
-uint32_t verify_adr_from_base(uint32_t base)
-{
-    //on verifie si un espace est mis comme libre
-    //depuis l origine
-    struct heap *header = (struct heap *)base;
-
-    while (header->free != 0 && header->suivant != 0)//tant que l espace n est pas libre
-    {
-        base += (uint32_t)header->size + (uint32_t)sizeof(struct heap);
-        header = (struct heap *)base;
-    }
-    //on est a l espace libre
-    //si le prochain est null alors ca sert a rien de continuer
-    //et si il est occupé
-    if (header->suivant == 0 && header->free == 1) return 0;
-
-    return base;
-
-}
-
 uint32_t get_stack_ram_usage()
 {
     uint32_t esp;
     asm volatile ("mov %%esp, %0" : "=r"(esp));
     return 0x80000 - esp;
-}
-
-
-uint32_t detect_free_mem_space()
-{
-    //retourne une adresse memoire si elle est libre sinon rien
-    uint32_t adr = HEAP_START;
-    uint32_t next_adr = verify_adr_from_base(adr);
-    while (next_adr != adr)
-    {
-        
-        adr = next_adr;
-        next_adr = verify_adr_from_base(adr);
-    }
-    return next_adr;   
 }
 
 int get_heap_ram_usage()
@@ -69,7 +34,7 @@ int get_heap_ram_usage()
     while (header->flag != 0)
     {  
         if (header->free == 1) used += header->size;
-        header = (struct heap *)((uint8_t *)header + sizeof(struct heap) + header->size);
+        header = (struct heap *)header->suivant;
     }
     if (header->free == 1) used += header->size;
     return used;
@@ -78,12 +43,38 @@ int get_heap_ram_usage()
 
 void free(void *adr)
 {
-    struct heap *bloc = (struct heap *)(adr - sizeof(struct heap));
-
-    bloc->free = 0;
+    struct heap *h = (struct heap *)((uint32_t)adr - sizeof(struct heap));
+    h->free = 0;
 }
 
-
+void dump_heap()
+{
+    vga_putchar("\n");
+    struct heap *h = (struct heap *)HEAP_START;
+    int index = 0;
+    while (1)
+    {
+        char number[2]; int_to_char(index, number);
+        char flag[5]; int_to_char(h->flag, flag);
+        char size[5]; int_to_char(h->size, size);
+        char free[5]; int_to_char(h->free, free);
+        char prec[20]; int_to_char(h->precedent, prec);
+        char suiv[20]; int_to_char(h->suivant, suiv);
+        char adrr[20]; int_to_char((uint32_t)h, adrr);
+        char val_adr[20]; int_to_char((uint32_t)((uint32_t)h+sizeof(struct heap)), val_adr);
+        
+        vga_putchar(" bloc(");vga_putchar(number); vga_putchar(") flag:"); vga_putchar(flag);
+         vga_putchar(" size:"); vga_putchar(size);
+        vga_putchar(" free:");vga_putchar(free); vga_putchar(" prec:");vga_putchar(prec);
+        vga_putchar(" suiv:");vga_putchar(suiv);vga_putchar(" adr:"); vga_putchar(adrr);
+        vga_putchar(" val:"); vga_putchar(val_adr);
+        vga_putchar("\n");
+        if (h->flag == 0) break;
+        h = (struct heap *)h->suivant;
+        index++;
+    }
+    
+}
 
 /*
 
@@ -109,6 +100,34 @@ on peut assigner sa valeur
 /// @return retourne un pointeur de l adresse qui est aloué
 void *allocate(int size)
 {
+    //on va essayer de trouver un bloc libre qui a une taille bien libre
+    struct heap *finder = (struct heap *)HEAP_START;//on part de l origine
+    int find = 0;
+    while (1)
+    {
+        if (finder->free == 0 && finder->size >= size)
+        {
+            find = 1;
+            break;
+        }
+        if (finder->flag == 0) break;
+        finder = (struct heap *)finder->suivant;
+    }
+
+    
+    if (find)//si un bloc libre est trouvé
+    {
+        uint32_t use_adresse = (uint32_t)finder;//adresse du bloc
+        //on change pas le suivant ni le precendent mais on créer un espace vide (orphelin)
+        finder->end = finder->start + size;
+        finder->size = size;
+        finder->free = 1;
+        if (finder->suivant != 0) finder->flag = 1;
+        uint32_t *content = (uint32_t *)((uint8_t *)finder + sizeof(struct heap));
+        return content;
+    }
+
+    
     struct heap *bloc = (struct heap *)actual_adr;
     bloc->start = actual_adr;
     bloc->end = bloc->start + size;

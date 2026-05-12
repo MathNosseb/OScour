@@ -8,6 +8,15 @@ void detect_command()
     char *command = get_command();
     int argc;
     char **argv = split_words(command, &argc);
+
+
+    char argcc[5]; int_to_char(argc, argcc);
+    if (argc == 0)
+    {
+        free(argv); 
+        return;
+    } 
+
     
     int reconnu = 0;
 
@@ -35,7 +44,12 @@ void detect_command()
     }
     if (compare_word_buff("allocate", argv[0]))
     {
-        if (argc < 2) return;
+        if (argc < 2)
+        {
+            free(argv); 
+            return;
+        }
+        
         char adresse[9];
         //on aloue la ram a la valeur de argv[1]
         int ram = char_to_int(argv[1]);
@@ -46,10 +60,21 @@ void detect_command()
     }
     if (compare_word_buff("free", argv[0]))
     {
-        if (argc < 2) return;
+        if (argc < 2)
+        {
+            free(argv); 
+            return;
+        } 
         int adr = char_to_int(argv[1]);
         free((uint32_t *)adr);
         reconnu = 1;
+    }
+    if (compare_word_buff("dump", argv[0]))
+    {
+        //free(argv);//on clean la memoire pour pas avoir de residus de commandes
+        dump_heap();
+        reconnu = 1;
+        //return;
     }
 
     if (!reconnu) vga_puchar_color("\ncommande non reconnu", RED_ON_BLACK);

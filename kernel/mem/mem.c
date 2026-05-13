@@ -17,6 +17,14 @@ struct heap
     int flag;//flag si suivant est present
 };
 
+struct e820_entry
+{
+    uint64_t base;
+    uint64_t length;
+    uint32_t type;
+    uint32_t acpi;
+} __attribute__((packed));
+
 struct heap *precend_heap;
 
 
@@ -45,6 +53,24 @@ void free(void *adr)
 {
     struct heap *h = (struct heap *)((uint32_t)adr - sizeof(struct heap));
     h->free = 0;
+}
+
+uint64_t get_total_ram()
+{
+    struct e820_entry *entries = (struct e820_entry *)0x8004;
+    uint16_t count = *(uint16_t *)0x8000;
+
+    uint64_t total = 0;
+
+    for (int i = 0; i < count; i++)
+    {
+        if (entries[i].type == 1)
+        {
+            total += entries[i].length;
+        }
+    }
+
+    return total;
 }
 
 void dump_heap()
@@ -152,3 +178,4 @@ void *allocate(int size)
     
     return content;
 }
+

@@ -21,6 +21,7 @@ void _start() {
     vga_puchar_color(stack, CYAN_ON_BLACK); vga_puchar_color(" Octets de stack dispo", CYAN_ON_BLACK); 
     
     vga_puchar_color("\nroot@local:", GREEN_ON_BLACK);
+    uint64_t total_mem = (get_total_ram()/1024/1024);
 
     while (1) {
         //OUTPUT
@@ -28,12 +29,16 @@ void _start() {
         
         char heap_quantity[9];
         char stack_quantity[9];
+        char total_ram[9];
         int heap_mem = get_heap_ram_usage();
         int stack_mem = get_stack_ram_usage();
+        
         int_to_char(heap_mem, heap_quantity);
         int_to_char(stack_mem, stack_quantity);
-        print_at(54,2, "heap "); print_at(60,2,heap_quantity); print_at(64,2, " octets");
-        print_at(54,3, "stack "); print_at(60,3,stack_quantity); print_at(64,3, " octets");
+        int_to_char(total_mem, total_ram);
+        print_at(54,0, "heap "); print_at(60,0,heap_quantity); print_at(64,0, " octets");
+        print_at(54,1, "stack "); print_at(60,1,stack_quantity); print_at(64,1, " octets");
+        print_at(54,2, "total "); print_at(60,2,total_ram); print_at(64,2, " Mo");
 
 
         //INPUT + COMMAND

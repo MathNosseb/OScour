@@ -1,6 +1,8 @@
 #include "shell.h"
 #include "../mem/mem.h"
 #include "../sys/hex.h"
+#include "programs.h"
+
 char sanitized_command[256];
 
 void detect_command()
@@ -9,8 +11,6 @@ void detect_command()
     int argc;
     char **argv = split_words(command, &argc);
 
-
-    char argcc[5]; int_to_char(argc, argcc);
     if (argc == 0)
     {
         free(argv); 
@@ -75,6 +75,22 @@ void detect_command()
         dump_heap();
         reconnu = 1;
         return;
+    }
+    if (compare_word_buff("load", argv[0]))
+    {
+        if (argc < 3)
+        {
+            free(argv); 
+            return;
+        } 
+        //recuperer l adresse
+        vga_putchar("\n");
+        free(argv);
+        read_program((uint32_t *)char_to_int(argv[1]), char_to_int(argv[2]));
+        reconnu = 1;
+        return;
+        
+
     }
 
     if (!reconnu) vga_puchar_color("\ncommande non reconnu", RED_ON_BLACK);

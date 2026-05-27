@@ -6,9 +6,10 @@
 #include "app/shell.h"
 #include "mem/mem.h"
 
+
 void _start() {
-    load_art();
     
+    load_art();
     char secteurs[1];
     char stack[7];
     int nbr_secteur = *(int *)0x500; //nombre de secteurs chargé
@@ -49,7 +50,9 @@ void _start() {
             {
                 if (scancode == 0x1C)
                 {
+                    
                     detect_command();
+                    vga_putchar("\n");
                     vga_puchar_color("root@local:", GREEN_ON_BLACK);
                 }
                 vga_putchar(scanCodeToChar(scancode));

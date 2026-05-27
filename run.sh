@@ -11,6 +11,7 @@ gcc -m32 -ffreestanding -fno-pie -nostdlib -O0 -c kernel/sys/hex.c    -o Binarie
 gcc -m32 -ffreestanding -fno-pie -nostdlib -O0 -c kernel/input/keyboard.c    -o Binaries/keyboard.o
 gcc -m32 -ffreestanding -fno-pie -nostdlib -O0 -c kernel/app/shell.c    -o Binaries/shell.o
 gcc -m32 -ffreestanding -fno-pie -nostdlib -O0 -c kernel/mem/mem.c    -o Binaries/mem.o
+gcc -m32 -ffreestanding -fno-pie -nostdlib -O0 -c kernel/app/programs.c    -o Binaries/programs.o
 
 ld -m elf_i386 -T linker.ld -o Binaries/kernel.elf \
     Binaries/kernel.o \
@@ -20,12 +21,16 @@ ld -m elf_i386 -T linker.ld -o Binaries/kernel.elf \
     Binaries/hex.o \
     Binaries/keyboard.o \
     Binaries/shell.o \
-    Binaries/mem.o
+    Binaries/mem.o \
+    Binaries/programs.o
 
 
 objcopy -O binary Binaries/kernel.elf Binaries/kernel.bin
 
 nasm -f bin bootloader/boot.asm -o Binaries/bootloader.bin
+python3 program_compiler.py
+truncate -s %512 Binaries/kernel.bin
+cat Binaries/compiledPrograms.bin >> Binaries/kernel.bin
 cat Binaries/bootloader.bin Binaries/kernel.bin > Binaries/os.bin
 
 truncate -s %512 Binaries/os.bin

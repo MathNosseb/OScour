@@ -74,7 +74,7 @@ load_kernel:
     mov bx, KERNEL_LOCATION   ; ← restaurer bx après do_e820
     
     mov ah, 0x02 ; Fonction de lecture de secteur
-    mov al, 15   ; Nombre de secteurs à lire
+    mov al, 17   ; Nombre de secteurs à lire
     mov ch, 0x00    ; Cylindre 0
     mov cl, 0x02    ; Secteur 9 (le premier secteur est le secteur
     mov dh, 0x00    ; Tête 0

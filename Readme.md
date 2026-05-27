@@ -2,6 +2,8 @@
 
 Système d'exploitation x86 développé dans un but éducatif sur deux ans (entre mes 15 et 17 ans) pour comprendre le fonctionnement bas niveau d'un ordinateur.
 
+![demo](Gif/presentation.gif)
+
 ## Fonctionnalités
 - Bootloader 16 bits
 - Passage en protected mode

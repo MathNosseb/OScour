@@ -1,6 +1,6 @@
 # Oscour
 
-Système d'exploitation x86 développé dans un but éducatif pour comprendre le fonctionnement bas niveau d'un ordinateur.
+Système d'exploitation x86 développé dans un but éducatif sur deux ans (entre mes 15 et 17 ans) pour comprendre le fonctionnement bas niveau d'un ordinateur.
 
 ## Fonctionnalités
 - Bootloader 16 bits

@@ -63,24 +63,38 @@ void run_program(void *adr, int size)
 {
     char pointeur[11];
     int_to_char((uint32_t)adr, pointeur);
-    
 
+    uint32_t *ptr = (uint32_t*)hex_to_int(pointeur);
+    uint32_t *end = ptr + size;
 
-    uint32_t *adr_ptr = (uint32_t*)hex_to_int(pointeur);;
-    int instruction = 0;//si on est dans une instruction
     clear_screen();
     vga_putchar("run program...\n");
-    //li le program a cet emplacement dans la ram
-    for (int i = 0; i < size; i++)
-    {
-        uint8_t val = *(uint32_t*)adr_ptr;//quel est la valeur de l octet
-        
-        //on l affiche a l ecran
-        char val_texte[11];
-        int_to_hex(val, val_texte); vga_putchar(val_texte);
-        
-        adr_ptr+=1;//prochaine adresse (caractère)
-    }    
-    
 
+    while (ptr < end)
+    {
+        uint8_t val = (uint8_t)*ptr;
+
+        if (val == 0x01)
+        {
+            ptr++;
+            while (ptr < end)
+            {
+                val = (uint8_t)*ptr;
+                if (val == 0xFF)
+                {
+                    ptr++;
+                    if ((uint8_t)*ptr == 0xFF) { ptr++; break; }
+                }
+                char c[2];
+                hex_to_string(val, c);
+                vga_putchar(c);
+                ptr++;
+            }
+            vga_putchar("\n");
+        }
+        else
+        {
+            ptr++;
+        }
+    }
 }

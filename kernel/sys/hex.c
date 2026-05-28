@@ -42,3 +42,9 @@ void int_to_hex(int n, char *out) {
 
     out[j] = '\0';
 }
+
+void hex_to_string(unsigned int value, char *buffer)
+{
+    buffer[0] = (char)value;
+    buffer[1] = '\0';
+}

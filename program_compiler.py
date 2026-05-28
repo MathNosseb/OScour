@@ -37,6 +37,8 @@ def compile(fichier):
 
             f.write(bytes([int(opcode, 16)]))
             f.write(bytes.fromhex(hex_text))
+            f.write(b'\xff')  # flag de fin de ligne
+            f.write(b'\xff')  # flag de fin de ligne
                         
 
 

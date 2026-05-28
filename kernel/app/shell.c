@@ -86,7 +86,24 @@ void detect_command()
         //recuperer l adresse
         vga_putchar("\n");
         free(argv);
-        read_program((uint32_t *)char_to_int(argv[1]), char_to_int(argv[2]));
+        load_program((uint32_t *)char_to_int(argv[1]), char_to_int(argv[2]));
+        reconnu = 1;
+        return;
+        
+
+    }
+
+    if (compare_word_buff("run", argv[0]))
+    {
+        if (argc < 3)
+        {
+            free(argv); 
+            return;
+        } 
+        //recuperer l adresse
+        vga_putchar("\n");
+        free(argv);
+        run_program((uint32_t *)char_to_int(argv[1]), char_to_int(argv[2]));
         reconnu = 1;
         return;
         

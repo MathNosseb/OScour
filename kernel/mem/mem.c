@@ -5,17 +5,7 @@
 
 uint32_t actual_adr = HEAP_START;
 
-struct heap
-{
-    int size;//taille en octet de la zone
-    uint32_t start;//adresse de debut
-    uint32_t end;//adresse de fin
-    int free;//0 -> libre, 1 -> occupé
-    uint32_t precedent;
-    
-    uint32_t suivant;
-    int flag;//flag si suivant est present
-};
+
 
 struct e820_entry
 {

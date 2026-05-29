@@ -28,13 +28,18 @@ ld -m elf_i386 -T linker.ld -o Binaries/kernel.elf \
 objcopy -O binary Binaries/kernel.elf Binaries/kernel.bin
 
 nasm -f bin bootloader/boot.asm -o Binaries/bootloader.bin
+
 python3 program_compiler.py
+wc -c Binaries/compiledPrograms.bin
+
 truncate -s %512 Binaries/kernel.bin
+dd if=/dev/zero bs=512 count=1 >> Binaries/kernel.bin
+
 cat Binaries/compiledPrograms.bin >> Binaries/kernel.bin
 cat Binaries/bootloader.bin Binaries/kernel.bin > Binaries/os.bin
 
 truncate -s %512 Binaries/os.bin
-VBoxManage convertfromraw Binaries/os.bin Binaries/os.vdi --format VDI
+#VBoxManage convertfromraw Binaries/os.bin Binaries/os.vdi --format VDI
 
 size=$(wc -c < Binaries/kernel.bin)
 echo $size octets de kernel

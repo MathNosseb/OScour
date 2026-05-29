@@ -10,6 +10,7 @@ void load_program(void *adr, int size)
 {
     //le programme a deux boucles pour permettre une separation lors de l allocution de la ram
     //entre la heap et la stack
+    
 
     //charge le programme dans la ram
     char adresse_char[11]; int_to_char((uint32_t)adr, adresse_char); 
@@ -43,7 +44,7 @@ void load_program(void *adr, int size)
     //lire dans la ram
     //reset du pointeur
     prg_heap-=size;
-    vga_putchar("\n heap:");
+    vga_putchar("heap:");
     //on avance et on li
     for (int j = 0; j < size; j++)
     {
@@ -55,7 +56,6 @@ void load_program(void *adr, int size)
         prg_heap+=1;
     }
     
-
 }
 
 
@@ -91,6 +91,40 @@ void run_program(void *adr, int size)
                 ptr++;
             }
             vga_putchar("\n");
+        }
+        else if (val == 0x02 || val == 0x03 || val == 0x04 || val == 0x05)
+        {
+            ptr++;
+            
+            
+            uint32_t a = 0;
+            for (int i = 0; i < 4; i++)
+            {
+                //on recupere chaque partie ex 9C, FF, FF, FF -> 9CFFFFFF
+                uint8_t op = (uint8_t)*ptr;
+                a = ((uint32_t)a << 8) | op;
+                ptr++;
+            }
+
+            uint32_t b = 0;
+            for (int i = 0; i < 4; i++)
+            {
+                //on recupere chaque partie ex 9C, FF, FF, FF -> 9CFFFFFF
+                uint8_t op = (uint8_t)*ptr;
+                b = ((uint32_t)b << 8) | op;
+                ptr++;
+            }
+
+            uint32_t res = 0;
+            if (val == 0x2) res = a + b;
+            if (val == 0x3) res = a - b;
+            if (val == 0x4) res = a * b;
+            if (val == 0x5) res = a / b;
+
+            char text[11];
+            int_to_char(res, text);
+        
+            vga_putchar(text);
         }
         else
         {

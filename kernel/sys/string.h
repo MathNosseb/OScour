@@ -1,3 +1,4 @@
+#pragma once
 void reverse_string(char *);
 void int_to_char(int, char *);
 char *replace_char(char *str, char from, char by);

@@ -29,13 +29,19 @@ void int_to_char(int nbr, char *texte)
     }
 
     int index = 0;
+
+    if (nbr < 0) {
+        texte[index++] = '-';
+        nbr = -nbr;
+    }
+
     while (nbr > 0) {
         texte[index++] = '0' + (nbr % 10);
         nbr /= 10;
     }
     texte[index] = '\0';
 
-    reverse_string(texte);
+    reverse_string(texte + (texte[0] == '-' ? 1 : 0));
 }
 
 int char_to_int(char *texte)

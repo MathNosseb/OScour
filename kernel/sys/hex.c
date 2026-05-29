@@ -19,7 +19,7 @@ int hex_to_int(char *s) {
     return result;
 }
 
-void int_to_hex(int n, char *out) {
+void int_to_hex(uint32_t n, char *out) {
     char hex[] = "0123456789ABCDEF";
     char tmp[16];
     int i = 0;

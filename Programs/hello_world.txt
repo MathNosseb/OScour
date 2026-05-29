@@ -1,2 +1,2 @@
-print bonjour
-print hello
+mov test 2
+mov mot test

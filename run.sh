@@ -10,6 +10,7 @@ gcc -m32 -ffreestanding -fno-pie -nostdlib -O0 -c kernel/output/vga.c    -o Bina
 gcc -m32 -ffreestanding -fno-pie -nostdlib -O0 -c kernel/sys/struct.c    -o Binaries/struct.o
 gcc -m32 -ffreestanding -fno-pie -nostdlib -O0 -c kernel/sys/string.c    -o Binaries/string.o
 gcc -m32 -ffreestanding -fno-pie -nostdlib -O0 -c kernel/sys/hex.c    -o Binaries/hex.o
+gcc -m32 -ffreestanding -fno-pie -nostdlib -O0 -c kernel/sys/list.c    -o Binaries/list.o
 gcc -m32 -ffreestanding -fno-pie -nostdlib -O0 -c kernel/input/keyboard.c    -o Binaries/keyboard.o
 gcc -m32 -ffreestanding -fno-pie -nostdlib -O0 -c kernel/app/shell.c    -o Binaries/shell.o
 gcc -m32 -ffreestanding -fno-pie -nostdlib -O0 -c kernel/mem/mem.c    -o Binaries/mem.o
@@ -25,7 +26,8 @@ ld -m elf_i386 -T linker.ld -o Binaries/kernel.elf \
     Binaries/keyboard.o \
     Binaries/shell.o \
     Binaries/mem.o \
-    Binaries/programs.o
+    Binaries/programs.o \
+    Binaries/list.o
 
 echo Envoie kernel vers binaire....
 objcopy -O binary Binaries/kernel.elf Binaries/kernel.bin
@@ -67,6 +69,7 @@ stack_size=$((0x80000 - end))
 printf "stack size = 0x%X\n" $stack_size
 echo $((stack_size)) Octets, $((stack_size/1000)) Ko, $((stack_size/1000/1000)), Mo
 
+printf "\\x$(printf '%02x' "$secteurs")" | dd of=Binaries/os.bin bs=1 seek=167 conv=notrunc
 xxd Binaries/os.bin > os.hex
 
 qemu-system-x86_64 -m 1G -drive format=raw,file=Binaries/os.bin

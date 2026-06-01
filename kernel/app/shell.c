@@ -103,7 +103,7 @@ void detect_command()
         //recuperer l adresse
         vga_putchar("\n");
         free(argv);
-        run_program((uint32_t *)char_to_int(argv[1]), char_to_int(argv[2]));
+        run_program((uint32_t *)hex_to_int(argv[1]), char_to_int(argv[2]));
         reconnu = 1;
         return;
         

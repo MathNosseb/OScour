@@ -1,8 +1,10 @@
 #!/bin/bash
 
+echo Supression des ancien fichiers....
 rm -rf Binaries
 mkdir -p Binaries
 
+echo Compilation du kernel....
 gcc -m32 -ffreestanding -fno-pie -nostdlib -O0 -c kernel/kernel.c -o Binaries/kernel.o
 gcc -m32 -ffreestanding -fno-pie -nostdlib -O0 -c kernel/output/vga.c    -o Binaries/vga.o
 gcc -m32 -ffreestanding -fno-pie -nostdlib -O0 -c kernel/sys/struct.c    -o Binaries/struct.o
@@ -13,6 +15,7 @@ gcc -m32 -ffreestanding -fno-pie -nostdlib -O0 -c kernel/app/shell.c    -o Binar
 gcc -m32 -ffreestanding -fno-pie -nostdlib -O0 -c kernel/mem/mem.c    -o Binaries/mem.o
 gcc -m32 -ffreestanding -fno-pie -nostdlib -O0 -c kernel/app/programs.c    -o Binaries/programs.o
 
+echo linkage....
 ld -m elf_i386 -T linker.ld -o Binaries/kernel.elf \
     Binaries/kernel.o \
     Binaries/vga.o \
@@ -24,23 +27,33 @@ ld -m elf_i386 -T linker.ld -o Binaries/kernel.elf \
     Binaries/mem.o \
     Binaries/programs.o
 
-
+echo Envoie kernel vers binaire....
 objcopy -O binary Binaries/kernel.elf Binaries/kernel.bin
 
+echo Compilation bootloader....
 nasm -f bin bootloader/boot.asm -o Binaries/bootloader.bin
 
+echo Compilation des programmes externes....
 python3 program_compiler.py
+
+echo affichage taille des programmes....
 wc -c Binaries/compiledPrograms.bin
 
+echo truncate + ajout octets au kernel....
 truncate -s %512 Binaries/kernel.bin
 dd if=/dev/zero bs=512 count=1 >> Binaries/kernel.bin
 
+echo ajout des programmes externes au kernel....
 cat Binaries/compiledPrograms.bin >> Binaries/kernel.bin
+
+echo ajout du kernel et du bootloader a l os....
 cat Binaries/bootloader.bin Binaries/kernel.bin > Binaries/os.bin
 
+echo derniere pass de truncate sur l os....
 truncate -s %512 Binaries/os.bin
 #VBoxManage convertfromraw Binaries/os.bin Binaries/os.vdi --format VDI
 
+echo lancement calculs info OS....
 size=$(wc -c < Binaries/kernel.bin)
 echo $size octets de kernel
 

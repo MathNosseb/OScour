@@ -111,8 +111,8 @@ def parse_command(command):
 
 
 
-            #suite des données
-            print(operande)
+            #suite des 
+            print(opcode.hex(), operande.hex())
             return (opcode, operande)
 
 

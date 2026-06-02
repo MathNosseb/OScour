@@ -72,4 +72,4 @@ echo $((stack_size)) Octets, $((stack_size/1000)) Ko, $((stack_size/1000/1000)),
 printf "\\x$(printf '%02x' "$secteurs")" | dd of=Binaries/os.bin bs=1 seek=167 conv=notrunc
 xxd Binaries/os.bin > os.hex
 
-qemu-system-x86_64 -m 1G -drive format=raw,file=Binaries/os.bin
+qemu-system-x86_64 -enable-kvm -cpu host -m 1G -drive format=raw,file=Binaries/os.bin

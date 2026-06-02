@@ -39,6 +39,18 @@ int get_heap_ram_usage()
     
 }
 
+uint32_t get_heap_ram_usage_and_non_use()
+{
+    struct heap *header = (struct heap *)HEAP_START;
+    while (header->flag != 0)
+    {  
+        header = (struct heap *)header->suivant;
+    }
+    uint32_t size = (uint32_t)((uint32_t)header+sizeof(struct heap));
+    return size - HEAP_START;
+    
+}
+
 void free(void *adr)
 {
     struct heap *h = (struct heap *)((uint32_t)adr - sizeof(struct heap));
@@ -92,6 +104,65 @@ void dump_heap()
     
 }
 
+void heap_stress_test()
+{
+    vga_putchar("\nstress");
+    void *ptrs[200];
+
+    for (int cycle = 0; cycle < 2; cycle++)
+    {
+        // phase 1 : allocations variées
+        for (int i = 0; i < 200; i++)
+        {
+            int size = (i * cycle + 13) % 64 + 1;
+            ptrs[i] = allocate(size);
+
+            if (ptrs[i])
+            {
+                uint8_t *p = (uint8_t *)ptrs[i];
+
+                // pattern dépendant du contexte (pour détecter corruption)
+                for (int j = 0; j < size; j++)
+                {
+                    p[j] = (uint8_t)(i ^ j ^ cycle);
+                }
+            }
+        }
+
+        // phase 2 : vérification + corruption détectable
+        for (int i = 0; i < 200; i++)
+        {
+            if (!ptrs[i]) continue;
+
+            uint8_t *p = (uint8_t *)ptrs[i];
+            int size = (i * cycle + 13) % 64 + 1;
+
+            for (int j = 0; j < size; j++)
+            {
+                if (p[j] != (uint8_t)(i ^ j ^ cycle))
+                {
+                    // corruption détectée (tu peux breakpoint ici)
+                    *((volatile int *)0xDEAD) = 1;
+                    vga_putchar("\ncorruption");
+                }
+            }
+        }
+
+        // phase 3 : libération partielle (fragmentation)
+        for (int i = 0; i < 200; i += 2)
+        {
+            free(ptrs[i]);
+            ptrs[i] = 0;
+        }
+
+        // phase 4 : re-allocation pour forcer réutilisation de trous
+        for (int i = 0; i < 100; i++)
+        {
+            ptrs[i] = allocate((i % 32) + 1);
+        }
+    }
+}
+
 /*
 
 La fonction d'allocation fonctionne comme ca:
@@ -135,18 +206,42 @@ void *allocate(int size)
     {
         uint32_t use_adresse = (uint32_t)finder;//adresse du bloc
         //on change pas le suivant ni le precendent mais on créer un espace vide (orphelin)
-        finder->end = finder->start + size;
+        finder->end = finder->start + size + sizeof(struct heap);
         finder->size = size;
         finder->free = 1;
         if (finder->suivant != 0) finder->flag = 1;
         uint32_t *content = (uint32_t *)((uint8_t *)finder + sizeof(struct heap));
+
+        //determiner si on peut creer un sous bloc pour eviter de creer un espace orphelin
+        //espace minimal requis -> taille header + 1 octet
+        if (finder->flag == 0) return content;
+        if (((struct heap *)finder->suivant)->start - finder->end >= sizeof(struct heap) + 1)
+        {
+            //on créer un espace
+            struct heap *new_finder = (struct heap *)finder->end;
+            new_finder->start = finder->end;
+            new_finder->end = ((struct heap *)finder->suivant)->start;
+            new_finder->free = 0;
+            new_finder->flag = 1;
+            new_finder->size = ((struct heap *)finder->suivant)->start - finder->end - sizeof(struct heap);
+            new_finder->suivant = ((struct heap *)finder->suivant)->start;
+            new_finder->precedent = finder->start;
+            
+            //redimensionner le precedent
+            finder->suivant = new_finder->start;
+
+            //redimensionner le precedent
+            ((struct heap *)new_finder->suivant)->precedent = new_finder->start;
+            
+        }
+
         return content;
     }
 
     
     struct heap *bloc = (struct heap *)actual_adr;
     bloc->start = actual_adr;
-    bloc->end = bloc->start + size;
+    bloc->end = bloc->start + size + sizeof(struct heap);
     bloc->size = size;
     bloc->free = 1;
     bloc->flag = 0;

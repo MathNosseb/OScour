@@ -4,6 +4,9 @@ struct Node *create_liste()
 {
     //retourne l adresse de la premiere
     struct Node *adressePremierNoeud = allocate(sizeof(struct Node));
+    adressePremierNoeud->addrNext = 0;
+    adressePremierNoeud->addrPrecedent = 0;
+    adressePremierNoeud->value = 0;
     return adressePremierNoeud;
 }
 
@@ -21,9 +24,11 @@ struct Node *list_append(int x, struct Node *list)
 
     tete->addrNext = allocate(sizeof(struct Node));
     tete->addrNext->addrPrecedent = tete;
+    tete->addrNext->addrNext = 0;
+    tete->addrNext->value = 0;
     tete->value = x;
 
-    return tete;
+    return tete->addrNext;
     
 }
 
@@ -36,7 +41,7 @@ void afficher_liste(struct Node *list){
         char value_text[sizeof(int)];
         int_to_char(tete->value, value_text);
         vga_putchar(value_text); vga_putchar("\n");
-        
+        /*
         char tete_text[sizeof(struct Node)];
         int_to_char((uint32_t)tete, tete_text);
         vga_putchar(tete_text); vga_putchar("\n");
@@ -47,45 +52,45 @@ void afficher_liste(struct Node *list){
 
         char addrPrecedent_text[sizeof(struct Node)];
         int_to_char((uint32_t)tete->addrPrecedent, addrPrecedent_text);
-        vga_putchar(addrPrecedent_text); vga_putchar("\n");
+        vga_putchar(addrPrecedent_text); vga_putchar("\n");*/
         tete = tete->addrNext;
     }
     
 }
 
-void pop_liste(struct Node *list, int index)
+struct Node *pop_liste(struct Node *list, int index)
 {
-    if (list == 0) return;
-    struct Node *tete;
-    tete = list;
+    if (list == 0) return 0;
+
+    struct Node *current = list;
+
     for (int i = 0; i < index; i++)
     {
-        if (tete->addrNext != 0)
-        {
-            tete = tete->addrNext;
-        }else
-        {
-            vga_putchar("ERREUR TAILLE DE LISTE\n");
-        }
+        if (current->addrNext == 0)
+            return list; // index hors limite
+
+        current = current->addrNext;
     }
 
-    char value_text[sizeof(int)];
-    int_to_char(tete->value, value_text);
-    vga_putchar("supression de l element ");
-    vga_putchar(value_text); vga_putchar("\n");
+    // debug optionnel
+    char value_text[16];
+    int_to_char(current->value, value_text);
+    vga_putchar("suppression: ");
+    vga_putchar(value_text);
+    vga_putchar("\n");
 
-    //si on est en debut de liste
-    if (tete->addrPrecedent == 0)
-    {
-        if (tete->addrNext != 0)
-        {
-            list = tete->addrNext;
-        }
+    if (current->addrPrecedent != 0)
+        current->addrPrecedent->addrNext = current->addrNext;
+    else
+        list = current->addrNext; // nouvelle tête
 
-        free(tete);
-        
-    }
-    
+    // si on n'est pas en fin
+    if (current->addrNext != 0)
+        current->addrNext->addrPrecedent = current->addrPrecedent;
+
+    free(current);
+
+    return list;
 }
 
 void clear_liste(struct Node *list){
@@ -108,6 +113,7 @@ void clear_liste(struct Node *list){
 
         teteDebut = precedent;
     }
+    free(teteDebut);
 
 }
 

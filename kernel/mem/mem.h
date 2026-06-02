@@ -16,6 +16,8 @@ struct heap
 
 void *allocate(int);
 uint32_t get_stack_ram_usage();
+uint32_t get_heap_ram_usage_and_non_use();
+void heap_stress_test();
 int get_heap_ram_usage();
 uint64_t get_total_ram();
 void free(void *adr);

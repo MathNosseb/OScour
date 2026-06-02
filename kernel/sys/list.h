@@ -17,4 +17,4 @@ struct Node *list_append(int, struct Node *);
 void afficher_liste(struct Node *);
 void clear_liste(struct Node *);
 int get_list_size(struct Node *);
-void pop_liste(struct Node *, int);
+struct Node *pop_liste(struct Node *list, int index);

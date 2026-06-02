@@ -10,7 +10,7 @@ struct Node *create_liste()
     return adressePremierNoeud;
 }
 
-struct Node *list_append(int x, struct Node *list)
+struct Node *list_append(uint32_t *adr, uint32_t size, struct Node *list)
 {
     //avancer jusqu'au flag de fin
     struct Node *tete;
@@ -26,7 +26,8 @@ struct Node *list_append(int x, struct Node *list)
     tete->addrNext->addrPrecedent = tete;
     tete->addrNext->addrNext = 0;
     tete->addrNext->value = 0;
-    tete->value = x;
+    tete->value = adr;
+    tete->size = size;
 
     return tete->addrNext;
     
@@ -34,12 +35,13 @@ struct Node *list_append(int x, struct Node *list)
 
 void afficher_liste(struct Node *list){
     //parcourir la liste jusqu'a la fin
+    //ne fonctionne que pour les int
     struct Node *tete;
     tete = list;
     while (tete->addrNext != 0)
     {
-        char value_text[sizeof(int)];
-        int_to_char(tete->value, value_text);
+        char value_text[sizeof(tete->value)];
+        int_to_char(*(uint32_t *)tete->value, value_text);
         vga_putchar(value_text); vga_putchar("\n");
         /*
         char tete_text[sizeof(struct Node)];
@@ -74,7 +76,7 @@ struct Node *pop_liste(struct Node *list, int index)
 
     // debug optionnel
     char value_text[16];
-    int_to_char(current->value, value_text);
+    int_to_char((uint32_t)current->value, value_text);
     vga_putchar("suppression: ");
     vga_putchar(value_text);
     vga_putchar("\n");
@@ -87,7 +89,7 @@ struct Node *pop_liste(struct Node *list, int index)
     // si on n'est pas en fin
     if (current->addrNext != 0)
         current->addrNext->addrPrecedent = current->addrPrecedent;
-
+    free(current->value);
     free(current);
 
     return list;
@@ -109,10 +111,12 @@ void clear_liste(struct Node *list){
     while(precedent != 0){
         //on save l adresse de l objet precedent pour y revenir
         precedent = teteDebut->addrPrecedent;
+        free(teteDebut->value);
         free(teteDebut);
 
         teteDebut = precedent;
     }
+    free(teteDebut->value);
     free(teteDebut);
 
 }

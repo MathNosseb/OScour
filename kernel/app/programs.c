@@ -4,23 +4,28 @@
 #include "../sys/string.h"
 #include "../sys/hex.h"         
 #include "../mem/mem.h"
+#include "../sys/list.h"
 
 
 void load_program(void *adr, int size)
 {
     //le programme a deux boucles pour permettre une separation lors de l allocution de la ram
     //entre la heap et la stack
-    
+    //initialisation de la liste pour les variables
+    struct Node *variables = create_liste();
+    uint32_t variables_adr = (uint32_t)variables;
+    char test[11];
+    int_to_hex(variables_adr, test); vga_putchar(test); vga_putchar(": adr list\n");
 
     //charge le programme dans la ram
     char adresse_char[11]; int_to_char((uint32_t)adr, adresse_char); 
 
     //adresse dans la ram du programme
-    uint32_t adresse = (uint32_t)0x1000 + ((uint32_t)hex_to_int(adresse_char) - (uint32_t)0x200);
+    uint32_t adresse = (uint32_t)0x1000 + ((uint32_t)char_to_int(adresse_char) - (uint32_t)0x200);
 
     //le mettre sur la heap
     //adresse du programme sur la heap
-    uint8_t *prg_heap = allocate(size);
+    uint8_t *prg_heap = allocate(size + sizeof(variables_adr));
 
     //on affiche l adresse
     char val_adr[11]; 
@@ -28,6 +33,11 @@ void load_program(void *adr, int size)
     vga_putchar(val_adr);//adresse que l on pourra free
 
     vga_putchar("\n");
+
+    //mettre les variables au debut
+    *(uint32_t *)prg_heap = (uint32_t)variables;
+    prg_heap += sizeof(uint32_t);
+    
 
     //lit le program a cet emplacement dans la ram
     for (int i = 0; i < size; i++)
@@ -43,10 +53,10 @@ void load_program(void *adr, int size)
 
     //lire dans la ram
     //reset du pointeur
-    prg_heap-=size;
+    prg_heap-=(size + sizeof(uint32_t));
     vga_putchar("heap:");
     //on avance et on li
-    for (int j = 0; j < size; j++)
+    for (int j = 0; j < size + sizeof(uint32_t); j++)
     {
         uint8_t valeur = *(uint8_t *) prg_heap;
         char valeur_texte[11];
@@ -68,6 +78,8 @@ void run_program(void *adr, int size)
     uint8_t *ptr = (uint8_t*)char_to_int(pointeur);
     uint8_t *end = ptr + size;
 
+    //les 4 premiers octets sont les octets d emplacement de variables
+    
 
     vga_putchar("\nrun program...\n");
     

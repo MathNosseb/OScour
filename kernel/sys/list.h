@@ -9,11 +9,12 @@ struct Node
 {
     struct Node *addrNext;
     struct Node *addrPrecedent;
-    int value;
+    void *value;
+    uint32_t size;
 };
 
 struct Node *create_liste();
-struct Node *list_append(int, struct Node *);
+struct Node *list_append(uint32_t *adr, uint32_t size, struct Node *list);
 void afficher_liste(struct Node *);
 void clear_liste(struct Node *);
 int get_list_size(struct Node *);

@@ -25,14 +25,6 @@ void _start() {
     vga_puchar_color("\nroot@local:", GREEN_ON_BLACK);
     uint64_t total_mem = (get_total_ram()/1024/1024);    
 
-    struct Node *node = create_liste();
-    list_append(23, node);
-    list_append(43, node);
-    list_append(5, node);
-    afficher_liste(node);
-    pop_liste(node, 1);
-    afficher_liste(node);
-
     while (1) {
         //OUTPUT
         update_cursor();

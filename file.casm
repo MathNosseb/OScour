@@ -1,0 +1,12 @@
+; Set registers to value 
+SET B, 0x4
+SET DIN, 0xB
+
+; Move register B value to register CIN
+MOV B, CIN
+
+; Adding value from CIN with value from DIN (4 + 11)
+ADD
+
+; Move result from Accumulator to Output Display
+MOV ACC, OUT

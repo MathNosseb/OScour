@@ -15,7 +15,7 @@ void load_program(void *adr, int size)
     struct Node *variables = create_liste();
     uint32_t variables_adr = (uint32_t)variables;
     char test[11];
-    int_to_hex(variables_adr, test); vga_putchar(test); vga_putchar(": adr list\n");
+    int_to_hex(variables_adr, test);
 
     //charge le programme dans la ram
     char adresse_char[11]; int_to_char((uint32_t)adr, adresse_char); 
@@ -77,6 +77,9 @@ void run_program(void *adr, int size)
 
     uint8_t *ptr = (uint8_t*)char_to_int(pointeur);
     uint8_t *end = ptr + size;
+
+    void (*func)() = (void (*)())ptr;
+    func();
 
     //les 4 premiers octets sont les octets d emplacement de variables
     

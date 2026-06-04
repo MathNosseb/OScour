@@ -46,7 +46,7 @@ truncate -s %512 Binaries/kernel.bin
 dd if=/dev/zero bs=512 count=1 >> Binaries/kernel.bin
 
 echo ajout des programmes externes au kernel....
-cat Binaries/compiledPrograms.bin >> Binaries/kernel.bin
+cat out.bin >> Binaries/kernel.bin
 
 echo ajout du kernel et du bootloader a l os....
 cat Binaries/bootloader.bin Binaries/kernel.bin > Binaries/os.bin

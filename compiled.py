@@ -119,7 +119,7 @@ def assemble(filename):
         else:
             raise Exception(f"Unknown instruction: {line}")
 
-    open("out.bin", "wb").write(output)
+    open("Binaries/out.bin", "wb").write(output)
     print("Generated out.bin")
 
 if __name__ == "__main__":

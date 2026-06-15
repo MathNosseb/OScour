@@ -58,11 +58,42 @@ Le bootloader fait exactement 512 octets ce qui est nécessaire pour booter, il 
 Je ne vais pas revenir sur chaque fichiers et fonctions du kernel mais il fonctionne ainsi:
 Le kernel.c est le fichier qui est executé en premier, la fonction `_start()` est la fonction d'entrée du code et est placé à *0x1000* soit à 1 Ko. Tout le kernel est chargé dans la ram à cet endroit, la stack est placé dans l autre sens et grandit vers les adresses basse, vers le kernel dans la ram. Son pointeur est placé à ***0x80000***, le kernel fini actuellement à ***0x300E***, donc en stack on a ***0x80000 - 0x300E*** (à l'heure actuelle ça depend de la taille du kernel), ce qui laisse ***0x7CFF2*** octets libre d'espace stack soit 511986 Octets de stack.
 Le kernel gère les Inputs / Outputs avec un affichage en VGA *(80x25)*, les inputs sont gérés avec les scancodes, et permettent de remplir un buffer de 256 octets, ce buffer est donné à un fichier d'execution de commandes quand la touche ***Entrée*** est pressée, ce qui déclenche l'éxécution de la commande. Il y a donc un système de découpage de *strings*. 
-On retrouve un système archaïque d'allocation de mémoire dynamique. Pourquoi archaïque car il ré-alloue difficilement la mémoire causant des erreurs de mémoires. Cela n'arrive jamais car l'Os est très peu gourmand en ressources (quelques dizaines d'octets au maximum). Mais il est présent et fonctionnel
-Dernièrement j'ai voulu ajouter un système pour lancer des programmes custom ce n'est que le début ça ne fonctionne pas mais peut être à l'avenir, il y a un fichier python qui permet la compilation de programme. Mon programme python compile un binaire
-qui est envoyé à la fin de l os, on peut charger le programme en mémoire puis ensuite executer le programme depuis la heap
-pour le moment seul quelques opcodes fonctionnent nottament print et l arthmétique de base. La suite est d'implémenter un 
-système de variables sans doute avec des listes chaînées.
+On retrouve un système basique d'allocation de mémoire dynamique. Pourquoi basique car il ré-alloue difficilement la mémoire causant des erreurs de mémoires. Cela n'arrive jamais car l'Os est très peu gourmand en ressources (quelques dizaines d'octets au maximum). Mais il est présent et fonctionnel
+
+## Les programmes
+Oscour peut lancer des programmes externes, il suffit de rajouter les programmes compilés en code machine
+x86 32 bits dans le code final de l os, de verifier sa position et sa taille et d'executer la commande
+`load (emplacement) (taille)` puis `run (emplacement ram) (taille)`
+Par exemple il y a un programme externe déjà présent dans l'os, on peut le lancer avec: 
+`load 2c00 49` puis `run (emplacement ram) 49`
+Dans un premier temps Oscour va prendre le programme et le mettre dans la heap, il alloue un espace pour 
+le programme, il affiche le contenu en hexa du programme et nous donne son adresse dans la heap.
+L'execution lance le programme comme une fonction externe. Tout code compilé en code machine 32 bits
+pour x86 fonctionne. **Pour les données** il est important d'appliquer un decalage qui se fait normalement
+avec org ... mais ici est impossible car l adresse n'est connu qu'au chargement dans la ram.
+L'objectif est de connaitre la position du programme dans la ram.
+On peut eviter cela avec:
+```asm
+[bits 32];est pour que nasm comprenne qu'il doit compiler en 32 bits
+call next;push l'adresse de retour sur la stack, jump vers next
+next:
+    pop ebx;recupere l'adresse depuis la stack
+    add ebx, hello - next;transforme cette adresse en pointeur vers hello
+    push ebx;met l'adresse de hello sur la stack
+    ; L'os met l'adresse de la fonction print à 0x504
+    mov eax, [0x504];je recupère la fonction à cette adresse
+    call eax;j'appel la fonction de print avec hello sur la stack
+    add esp, 4;je decale mon pointeur de stack de 4 pour effacer hello
+    ret;on revient au code kernel
+
+hello db "Hello from external program", 0
+```
+
+## Mon compilateur
+J'ai créé un compilateur permettant de créer des programmes pour mon os
+[Mon Compilateur](https://github.com/MathNosseb/asm-compiler), ce compilateur permet juste de déplacer
+des valeurs dans des registres et la ram, on peut facilement écrire un programme qui affiche du texte
+à l'écran avec.
 
 # Mon avis
 Ce projet m'a énormément apporté notamment dans les compétences de logique et développement dans le bas niveau (proche de la machine). Je recommanderai ce projet à des personnes expérimentées pour éviter de se décourager comme j'ai pu le faire au début du projet. Si vous souhaitez tout de même réaliser ce projet je recommande de lire beaucoup de documentation sur les fonctionnements de chaque système pour ne pas se faire submerger par les exigences d'un tel projet. C'est un projet qui est vraiment très difficile et qui demande une grande connaissance de technologies difficilement compréhensible, mais cela reste un excellent moyen pour apprendre une grande quantité de choses.

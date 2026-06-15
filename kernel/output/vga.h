@@ -1,6 +1,6 @@
 #include "../sys/struct.h"
 #define VIDEO_MEMORY     0xB8000
-#define WHITE_ON_BLACK   0x07
+#define WHITE_ON_BLACK   0x0F
 #define GREEN_ON_BLACK   0x02
 #define CYAN_ON_BLACK    0x03
 #define RED_ON_BLACK     0x04

@@ -2,7 +2,7 @@
 
 int counter = 0;
 
-/// @brief affiche une suite de caracteres a l ecran
+/// @brief affiche une suite de caracteres a l ecran -> doit rester en permier pour avoir la meme adr
 /// @param texte le texte a afficher sous forme de string ""
 /// @param counter l adresse du conteur de caractere
 void vga_putchar(char *texte)

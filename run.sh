@@ -35,25 +35,21 @@ objcopy -O binary Binaries/kernel.elf Binaries/kernel.bin
 echo Compilation bootloader....
 nasm -f bin bootloader/boot.asm -o Binaries/bootloader.bin
 
-#echo Compilation des programmes externes....
-#python3 program_compiler.py
-
-#echo affichage taille des programmes....
-#wc -c Binaries/compiledPrograms.bin
+nasm -f bin Programs/program.asm -o Binaries/out.bin
+wc -c Binaries/out.bin
 
 echo truncate + ajout octets au kernel....
 truncate -s %512 Binaries/kernel.bin
 dd if=/dev/zero bs=512 count=1 >> Binaries/kernel.bin
 
 echo ajout des programmes externes au kernel....
-cat out.bin >> Binaries/kernel.bin
+cat Binaries/out.bin >> Binaries/kernel.bin
 
 echo ajout du kernel et du bootloader a l os....
 cat Binaries/bootloader.bin Binaries/kernel.bin > Binaries/os.bin
 
 echo derniere pass de truncate sur l os....
 truncate -s %512 Binaries/os.bin
-#VBoxManage convertfromraw Binaries/os.bin Binaries/os.vdi --format VDI
 
 echo lancement calculs info OS....
 size=$(wc -c < Binaries/kernel.bin)

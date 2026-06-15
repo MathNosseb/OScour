@@ -70,5 +70,5 @@ void run_program(void *adr, int size)
     vga_putchar("\nrun program...\n");
     void (*func)() = (void (*)())ptr;
     func();
-    vga_putchar("end program...\n");
+    vga_putchar("\nend program...\n");
 }

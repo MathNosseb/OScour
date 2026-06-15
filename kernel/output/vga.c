@@ -100,7 +100,7 @@ void load_art()
     vga_putchar(" | |  | |\\___ \\ / __/ _ \\| | | | '__| \\ \\ / // / \n");
     vga_putchar(" | |__| |____) | (_| (_) | |_| | |     \\ V // /_ \n");
     vga_putchar("  \\____/|_____/ \\___\\___/ \\__,_|_|      \\_/|____|\n");
-    vga_puchar_color("Oscour made by mathnosseb v2.0.1\n", CYAN_ON_BLACK);
+    vga_puchar_color("Oscour made by mathnosseb v2.1.0\n", CYAN_ON_BLACK);
 }
 
 void print_at(int x, int y, char *text)

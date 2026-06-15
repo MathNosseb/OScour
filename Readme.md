@@ -14,9 +14,11 @@ Système d'exploitation x86 développé dans un but éducatif sur deux ans (entr
 - Allocation mémoire basique
 - Système de commandes
 - Chargement du kernel depuis le disque
+- Gestion de programmes externes
 
 ## Technologies
 - x86 Assembly
+- x86 Machine Code
 - C
 - NASM
 - GCC
@@ -55,24 +57,34 @@ Tout le code vient de moi  sauf la partie pour récupérer les infos de la ram q
 Le bootloader fait exactement 512 octets ce qui est nécessaire pour booter, il doit se finir par `55 AA`.
 
 ## Le kernel
-Je ne vais pas revenir sur chaque fichiers et fonctions du kernel mais il fonctionne ainsi:
-Le kernel.c est le fichier qui est executé en premier, la fonction `_start()` est la fonction d'entrée du code et est placé à *0x1000* soit à 1 Ko. Tout le kernel est chargé dans la ram à cet endroit, la stack est placé dans l autre sens et grandit vers les adresses basse, vers le kernel dans la ram. Son pointeur est placé à ***0x80000***, le kernel fini actuellement à ***0x300E***, donc en stack on a ***0x80000 - 0x300E*** (à l'heure actuelle ça depend de la taille du kernel), ce qui laisse ***0x7CFF2*** octets libre d'espace stack soit 511986 Octets de stack.
+Je ne vais pas revenir sur chaque fichiers et fonctions du kernel mais il fonctionne ainsi:<br>
+Le kernel.c est le fichier qui est executé en premier, la fonction `_start()` est la fonction d'entrée du code et est placé à *0x1000* soit à 1 Ko.<br> Tout le kernel est chargé dans la ram à cet endroit, la stack est placé dans l autre sens et grandit vers les adresses basse, vers le kernel dans la ram. Son pointeur est placé à ***0x80000***, le kernel fini actuellement à ***0x300E***, donc en stack on a ***0x80000 - 0x300E*** (à l'heure actuelle ça depend de la taille du kernel), ce qui laisse ***0x7CFF2*** octets libre d'espace stack soit 511986 Octets de stack.<br>
 Le kernel gère les Inputs / Outputs avec un affichage en VGA *(80x25)*, les inputs sont gérés avec les scancodes, et permettent de remplir un buffer de 256 octets, ce buffer est donné à un fichier d'execution de commandes quand la touche ***Entrée*** est pressée, ce qui déclenche l'éxécution de la commande. Il y a donc un système de découpage de *strings*. 
-On retrouve un système basique d'allocation de mémoire dynamique. Pourquoi basique car il ré-alloue difficilement la mémoire causant des erreurs de mémoires. Cela n'arrive jamais car l'Os est très peu gourmand en ressources (quelques dizaines d'octets au maximum). Mais il est présent et fonctionnel
+On retrouve un système basique d'allocation de mémoire dynamique. Pourquoi basique car il ré-alloue difficilement la mémoire causant des erreurs de mémoires. Cela n'arrive jamais car l'Os est très peu gourmand en ressources (quelques dizaines d'octets au maximum). Mais il est présent et fonctionnel.<br>
+Les ressources en haut a droite représente des informations système (memory manager).<br>
+```
+heap ... octets //quantité de heap alloué
+stack ... octets //distance entre esp et le pointeur initial
+dispo ... Mo //ram total de l'ordinateur
+tot ... octets//quantité déployé d'adresse même libéré par l'allocateur de mémoire
+
+print ... //position dans la ram du programme d'affichage de texte (print)
+```
 
 ## Les programmes
 Oscour peut lancer des programmes externes, il suffit de rajouter les programmes compilés en code machine
-x86 32 bits dans le code final de l os, de verifier sa position et sa taille et d'executer la commande
-`load (emplacement) (taille)` puis `run (emplacement ram) (taille)`
-Par exemple il y a un programme externe déjà présent dans l'os, on peut le lancer avec: 
-`load 2c00 49` puis `run (emplacement ram) 49`
+x86 32 bits dans le code final de l os, de verifier sa position et sa taille et d'executer la commande<br>
+`load (emplacement) (taille)` puis `run (emplacement ram) (taille)`<br>
+Par exemple il y a un programme externe déjà présent dans l'os, on peut le lancer avec:<br>
+`load 2c00 49` puis `run (emplacement ram) 49`<br>
+
 Dans un premier temps Oscour va prendre le programme et le mettre dans la heap, il alloue un espace pour 
-le programme, il affiche le contenu en hexa du programme et nous donne son adresse dans la heap.
+le programme, il affiche le contenu en hexa du programme et nous donne son adresse dans la heap.<br>
 L'execution lance le programme comme une fonction externe. Tout code compilé en code machine 32 bits
 pour x86 fonctionne. **Pour les données** il est important d'appliquer un decalage qui se fait normalement
 avec org ... mais ici est impossible car l adresse n'est connu qu'au chargement dans la ram.
-L'objectif est de connaitre la position du programme dans la ram.
-On peut eviter cela avec:
+L'objectif est de connaitre la position du programme dans la ram.<br>
+Pour ce faire à l'aide de l'IA j'ai trouvé ça:
 ```asm
 [bits 32];est pour que nasm comprenne qu'il doit compiler en 32 bits
 call next;push l'adresse de retour sur la stack, jump vers next

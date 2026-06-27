@@ -16,6 +16,7 @@ gcc -m32 -ffreestanding -fno-pie -nostdlib -O0 -c kernel/app/shell.c    -o Binar
 gcc -m32 -ffreestanding -fno-pie -nostdlib -O0 -c kernel/mem/mem.c    -o Binaries/mem.o
 gcc -m32 -ffreestanding -fno-pie -nostdlib -O0 -c kernel/app/programs.c    -o Binaries/programs.o
 gcc -m32 -ffreestanding -fno-pie -nostdlib -O0 -c kernel/disque/disk.c    -o Binaries/disk.o
+gcc -m32 -ffreestanding -fno-pie -nostdlib -O0 -c kernel/fs/fat32.c    -o Binaries/fat32.o
 
 echo linkage....
 ld -m elf_i386 -T linker.ld -o Binaries/kernel.elf \
@@ -29,7 +30,8 @@ ld -m elf_i386 -T linker.ld -o Binaries/kernel.elf \
     Binaries/mem.o \
     Binaries/programs.o \
     Binaries/list.o \
-    Binaries/disk.o
+    Binaries/disk.o \
+    Binaries/fat32.o
 
 
 echo Envoie kernel vers binaire....

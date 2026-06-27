@@ -15,6 +15,7 @@ gcc -m32 -ffreestanding -fno-pie -nostdlib -O0 -c kernel/input/keyboard.c    -o 
 gcc -m32 -ffreestanding -fno-pie -nostdlib -O0 -c kernel/app/shell.c    -o Binaries/shell.o
 gcc -m32 -ffreestanding -fno-pie -nostdlib -O0 -c kernel/mem/mem.c    -o Binaries/mem.o
 gcc -m32 -ffreestanding -fno-pie -nostdlib -O0 -c kernel/app/programs.c    -o Binaries/programs.o
+gcc -m32 -ffreestanding -fno-pie -nostdlib -O0 -c kernel/disque/disk.c    -o Binaries/disk.o
 
 echo linkage....
 ld -m elf_i386 -T linker.ld -o Binaries/kernel.elf \
@@ -27,7 +28,9 @@ ld -m elf_i386 -T linker.ld -o Binaries/kernel.elf \
     Binaries/shell.o \
     Binaries/mem.o \
     Binaries/programs.o \
-    Binaries/list.o
+    Binaries/list.o \
+    Binaries/disk.o
+
 
 echo Envoie kernel vers binaire....
 objcopy -O binary Binaries/kernel.elf Binaries/kernel.bin
@@ -35,21 +38,15 @@ objcopy -O binary Binaries/kernel.elf Binaries/kernel.bin
 echo Compilation bootloader....
 nasm -f bin bootloader/boot.asm -o Binaries/bootloader.bin
 
-nasm -f bin Programs/program.asm -o Binaries/out.bin
-wc -c Binaries/out.bin
+nasm -f bin Programs/program.asm -o disk.bin
+wc -c disk.bin
+truncate -s %512 disk.bin
 
 echo truncate + ajout octets au kernel....
 truncate -s %512 Binaries/kernel.bin
-dd if=/dev/zero bs=512 count=1 >> Binaries/kernel.bin
-
-echo ajout des programmes externes au kernel....
-cat Binaries/out.bin >> Binaries/kernel.bin
 
 echo ajout du kernel et du bootloader a l os....
 cat Binaries/bootloader.bin Binaries/kernel.bin > Binaries/os.bin
-
-echo derniere pass de truncate sur l os....
-truncate -s %512 Binaries/os.bin
 
 echo lancement calculs info OS....
 size=$(wc -c < Binaries/kernel.bin)
@@ -68,4 +65,10 @@ echo $((stack_size)) Octets, $((stack_size/1000)) Ko, $((stack_size/1000/1000)),
 printf "\\x$(printf '%02x' "$secteurs")" | dd of=Binaries/os.bin bs=1 seek=167 conv=notrunc
 xxd Binaries/os.bin > os.hex
 
-qemu-system-x86_64 -enable-kvm -cpu host -m 1G -drive format=raw,file=Binaries/os.bin
+
+qemu-system-x86_64 \
+    -enable-kvm -cpu host \
+    -m 1G \
+    -monitor stdio \
+    -drive format=raw,file=Binaries/os.bin \
+    -drive format=raw,file=disk.bin,if=ide

@@ -38,14 +38,8 @@ Le projet n'est pas allé plus loin qu'un simple bootloader bien trop complexe q
 2026 je réouvre le projet avec maintenant une meilleure connaissance du C et de l'assembleur et je remarque en relisant le code que seulement deux secteurs sont lu ce qui cause des problèmes. Je décide de repartir sur le projet avec uniquement mon ancien bootloader qui fonctionne très bien et que j'ai par la suite amélioré.
 
 ## Rapport à l'IA
-J'ai voulu approfondir mes connaissances avec l'aide de l'ia sans être dépendant, elle me sert uniquement à apprendre et pas à écrire du code bêtement. Je voulais vraiment comprendre par moi même le code. j'ai donc utilisé quasi exclusivement **Claude** pour pouvoir lui demander un feedback quand à mon utilisation de l'IA:
-
-Ma question:
-*Peux-tu me dire comment je t'ai utilisé (aspect technique) pour le débogage, écriture de code, etc. Si j'ai appris ou me suis appuyé uniquement pour résoudre des bugs sans compréhension du code*
-
-Réponse:
-*Un LLM est souvent utilisé comme béquille — pour générer du code qu'on ne comprend pas, combler des lacunes sans les combler vraiment. Ce projet illustre l'inverse : l'IA sollicitée ponctuellement, sur des blocages précis, avec l'intention de comprendre et non de contourner. C'est une posture rare, et probablement la seule qui ait du sens dans un domaine aussi bas niveau.
-— Claude (Anthropic)*
+J'ai voulu approfondir mes connaissances avec l'aide de l'ia sans être dépendant, elle me sert uniquement à apprendre et pas à écrire du code bêtement. Je voulais vraiment comprendre par moi même le code.
+Alors chaque ligne de code est comprise et je comprend absolument tout le code même si des parties sont assistés avec de l'ia c'est uniquement pour comprendre des concepts.
 
 # Programme
 

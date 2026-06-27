@@ -6,6 +6,7 @@
 #include "app/shell.h"
 #include "mem/mem.h"
 #include "sys/list.h"
+#include "disque/disk.h"
 
 
 void _start() {

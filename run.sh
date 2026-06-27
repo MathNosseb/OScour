@@ -15,6 +15,7 @@ gcc -m32 -ffreestanding -fno-pie -nostdlib -O0 -c kernel/input/keyboard.c    -o 
 gcc -m32 -ffreestanding -fno-pie -nostdlib -O0 -c kernel/app/shell.c    -o Binaries/shell.o
 gcc -m32 -ffreestanding -fno-pie -nostdlib -O0 -c kernel/mem/mem.c    -o Binaries/mem.o
 gcc -m32 -ffreestanding -fno-pie -nostdlib -O0 -c kernel/app/programs.c    -o Binaries/programs.o
+gcc -m32 -ffreestanding -fno-pie -nostdlib -O0 -c kernel/disque/disk.c    -o Binaries/disk.o
 
 echo linkage....
 ld -m elf_i386 -T linker.ld -o Binaries/kernel.elf \
@@ -27,7 +28,9 @@ ld -m elf_i386 -T linker.ld -o Binaries/kernel.elf \
     Binaries/shell.o \
     Binaries/mem.o \
     Binaries/programs.o \
-    Binaries/list.o
+    Binaries/list.o \
+    Binaries/disk.o
+
 
 echo Envoie kernel vers binaire....
 objcopy -O binary Binaries/kernel.elf Binaries/kernel.bin
@@ -68,4 +71,12 @@ echo $((stack_size)) Octets, $((stack_size/1000)) Ko, $((stack_size/1000/1000)),
 printf "\\x$(printf '%02x' "$secteurs")" | dd of=Binaries/os.bin bs=1 seek=167 conv=notrunc
 xxd Binaries/os.bin > os.hex
 
-qemu-system-x86_64 -enable-kvm -cpu host -m 1G -drive format=raw,file=Binaries/os.bin
+# disque de 1Mo
+qemu-img create -f raw disk.img 1M
+dd if=/dev/zero bs=512 count=1 | tr '\000' '\001' > disk.img
+
+qemu-system-x86_64 \
+    -enable-kvm -cpu host \
+    -m 1G \
+    -drive format=raw,file=Binaries/os.bin \
+    -drive format=raw,file=disk.img,if=ide

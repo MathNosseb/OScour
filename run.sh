@@ -38,21 +38,15 @@ objcopy -O binary Binaries/kernel.elf Binaries/kernel.bin
 echo Compilation bootloader....
 nasm -f bin bootloader/boot.asm -o Binaries/bootloader.bin
 
-nasm -f bin Programs/program.asm -o Binaries/out.bin
-wc -c Binaries/out.bin
+nasm -f bin Programs/program.asm -o disk.bin
+wc -c disk.bin
+truncate -s %512 disk.bin
 
 echo truncate + ajout octets au kernel....
 truncate -s %512 Binaries/kernel.bin
-dd if=/dev/zero bs=512 count=1 >> Binaries/kernel.bin
-
-echo ajout des programmes externes au kernel....
-cat Binaries/out.bin >> Binaries/kernel.bin
 
 echo ajout du kernel et du bootloader a l os....
 cat Binaries/bootloader.bin Binaries/kernel.bin > Binaries/os.bin
-
-echo derniere pass de truncate sur l os....
-truncate -s %512 Binaries/os.bin
 
 echo lancement calculs info OS....
 size=$(wc -c < Binaries/kernel.bin)
@@ -71,12 +65,10 @@ echo $((stack_size)) Octets, $((stack_size/1000)) Ko, $((stack_size/1000/1000)),
 printf "\\x$(printf '%02x' "$secteurs")" | dd of=Binaries/os.bin bs=1 seek=167 conv=notrunc
 xxd Binaries/os.bin > os.hex
 
-# disque de 1Mo
-qemu-img create -f raw disk.img 1M
-dd if=/dev/zero bs=512 count=1 | tr '\000' '\001' > disk.img
 
 qemu-system-x86_64 \
     -enable-kvm -cpu host \
     -m 1G \
+    -monitor stdio \
     -drive format=raw,file=Binaries/os.bin \
-    -drive format=raw,file=disk.img,if=ide
+    -drive format=raw,file=disk.bin,if=ide

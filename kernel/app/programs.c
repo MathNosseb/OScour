@@ -43,10 +43,10 @@ void load_program(void *adr, int size)
 
     //lire dans la ram
     //reset du pointeur
-    prg_heap-=(size + sizeof(uint32_t));
+    prg_heap-=(size);
     vga_putchar("heap:");
     //on avance et on li
-    for (int j = 0; j < size + sizeof(uint32_t); j++)
+    for (int j = 0; j < size; j++)
     {
         uint8_t valeur = *(uint8_t *) prg_heap;
         char valeur_texte[11];
@@ -62,7 +62,7 @@ void load_program(void *adr, int size)
 void run_program(void *adr, int size)
 {
     char pointeur[11];
-    int_to_char((uint32_t)adr, pointeur); vga_putchar(pointeur);
+    int_to_char((uint32_t)adr, pointeur);
     
 
     uint8_t *ptr = (uint8_t*)char_to_int(pointeur);

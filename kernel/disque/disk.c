@@ -24,6 +24,26 @@
 /// @param sec_number le nombre de secteur a lire
 void read_ata(int disk_num, uint32_t lba, int sec_number)
 {
+    uint8_t *adr = (uint8_t *)load_ata(disk_num, lba, sec_number);
+
+    for (int value = 0; value < sec_number * 512; value++)
+    {
+        char value_text[3];
+        int_to_hex((uint8_t)adr[value], value_text);
+        vga_putchar(value_text); vga_putchar(" ");
+    }
+
+    free(adr);
+
+}
+
+/// @brief charge le contenu du disque en mémoire (heap)
+/// @param disk_num le numero du disque (0 master, 1 slave)
+/// @param lba l adresse lba
+/// @param sec_number le nombre de secteur a lire
+/// @return l'adresse du contenu du disque dans la ram
+uint32_t *load_ata(int disk_num, uint32_t lba, int sec_number)
+{
     while (inb(0x1F7) & 0x80);  // attendre BSY=0
 
     outb(0x1F2, sec_number); //lire sec_number de secteurs
@@ -47,18 +67,13 @@ void read_ata(int disk_num, uint32_t lba, int sec_number)
     // Attendre DRQ=1 (données prêtes)
     while (!(inb(0x1F7) & 0x08));
 
-    char buffer[512];
-    for (int i = 0; i < 256; i++) {
+    uint8_t *adr = allocate(sec_number * 512);
+
+    for (int i = 0; i < sec_number * 256; i++) {
         uint16_t val = inw(0x1F0);
-        buffer[i * 2]     = (char)(val & 0xFF);
-        buffer[i * 2 + 1] = (char)((val >> 8) & 0xFF);
+        adr[i * 2]     = (char)(val & 0xFF);
+        adr[i * 2 + 1] = (char)((val >> 8) & 0xFF);
     }
 
-    for (int value = 0; value < 512; value++)
-    {
-        char value_text[3];
-        int_to_hex((uint8_t)buffer[value], value_text);
-        vga_putchar(value_text); vga_putchar(" ");
-    }
-
+    return (uint32_t *)adr;
 }

@@ -65,7 +65,7 @@ void _start() {
         print_at(54,0, "heap "); print_at(60,0,heap_quantity); print_at(64,0, " octets");
         print_at(54,1, "stack "); print_at(60,1,stack_quantity); print_at(64,1, " octets");
         print_at(54,2, "dispo "); print_at(60,2,total_ram); print_at(64,2, " Mo");
-        print_at(54,3, "tot "); print_at(60,3,total_heap); print_at(64,3, " octets");
+        print_at(53,3, "expend "); print_at(60,3,total_heap); print_at(64,3, " octets");
         print_at(54, 5, "print"); print_at(60, 5, vga_text); 
 
 

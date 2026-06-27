@@ -1,6 +1,7 @@
 #include "shell.h"
 #include "../mem/mem.h"
 #include "../sys/hex.h"
+#include "../disque/disk.h"
 #include "programs.h"
 
 char sanitized_command[256];
@@ -85,8 +86,8 @@ void detect_command()
         } 
         //recuperer l adresse
         vga_putchar("\n");
-        free(argv);
         load_program((uint32_t *)hex_to_int(argv[1]), char_to_int(argv[2]));
+        free(argv);
         reconnu = 1;
         return;
         
@@ -102,12 +103,38 @@ void detect_command()
         } 
         //recuperer l adresse
         vga_putchar("\n");
-        free(argv);
         run_program((uint32_t *)hex_to_int(argv[1]), char_to_int(argv[2]));
+        free(argv);
         reconnu = 1;
         return;
         
 
+    }
+    if (compare_word_buff("ata", argv[0]))
+    {
+        if (argc < 5)
+        {
+            free(argv); 
+            return;
+        } 
+
+        vga_putchar("\n");
+        int disk_num = char_to_int(argv[2]);
+        uint32_t lba = char_to_int(argv[3]);
+        int secteur_num = char_to_int(argv[4]);
+
+        if(compare_word_buff("read", argv[1]))
+        {
+            reconnu = 1;
+            read_ata(disk_num, lba, secteur_num);
+        }else if (compare_word_buff("load", argv[1]))
+        {
+            reconnu = 1;
+            load_ata(disk_num, lba, secteur_num);
+        }     
+
+        free(argv);
+        
     }
 
     if (!reconnu) vga_puchar_color("\ncommande non reconnu", RED_ON_BLACK);

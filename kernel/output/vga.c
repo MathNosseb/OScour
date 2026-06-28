@@ -26,6 +26,7 @@ void vga_puchar_color(char *texte, uint8_t color)
            special = 1;
             counter = (counter / 80 + 1) * 80;  // pas de -= 1
             index++;
+            update_cursor();
             
         }
         if (texte[index] == '\b')
@@ -36,6 +37,7 @@ void vga_puchar_color(char *texte, uint8_t color)
             index+=1;
             vga_putchar(" ");
             counter-=1;
+            update_cursor();
             continue;
         }
         if (texte[index] == '\t')
@@ -44,6 +46,7 @@ void vga_puchar_color(char *texte, uint8_t color)
             special=1;
             counter += 3;
             index++;
+            update_cursor();
             break;
             
         }
@@ -52,6 +55,7 @@ void vga_puchar_color(char *texte, uint8_t color)
             p[counter] = (color << 8) | texte[index];
             counter+=1;
             index+=1;
+            update_cursor();
         }
         
     }
@@ -59,7 +63,11 @@ void vga_puchar_color(char *texte, uint8_t color)
 
 void update_cursor()
 {
-    counter = (counter < 0) ? 0 : counter % (25*80);
+    if (counter >= 80*25)
+    {
+        counter -= 80;
+        scroll_screen();
+    }
     outb(0x3D4, 0x0F);
     outb(0x3D5, (uint8_t)(counter & 0xFF));
 
@@ -80,14 +88,15 @@ int get_cursor()
 
 void clear_screen()
 {
+    volatile uint16_t* p;
+    p = (volatile uint16_t *)VIDEO_MEMORY;
     for (int i = 0; i < 25*80; i++)
     {
-        vga_putchar(" ");
-        update_cursor();
+        p[i] = (WHITE_ON_BLACK << 8) | ' ';
     }
 
     set_cursor(0);
-    
+    update_cursor();
 }
 
 
@@ -116,4 +125,30 @@ void print_at(int x, int y, char *text)
     }
 
     
+}
+
+void scroll_screen()
+{
+    //deplace toutes les lignes vers le haut sauf la première
+    //pour toutes les lignes faire -80 a leur position
+    
+    //ligne = caractere + couleur -> 2 octets
+    //chaque ligne = 160 octets
+
+    volatile uint16_t* p;
+    p = (volatile uint16_t *)VIDEO_MEMORY;
+    //on copie du bas vers le haut
+
+    for (int j = 0; j < 24; j++)
+    {
+        for (int i = 0; i < 80; i++)
+        {
+            p[j * 80 + i] = p[(j + 1) * 80 + i];
+        }
+    }
+    //clear la derniere ligne
+
+    for (int i = 0; i < 80; i++)
+        p[80*24+i] = (WHITE_ON_BLACK << 8) | ' ';
+
 }

@@ -17,3 +17,4 @@ int get_cursor();
 void clear_screen();
 void load_art();
 void print_at(int x, int y, char *text);
+void scroll_screen();

@@ -14,6 +14,7 @@ void detect_command()
 
     if (argc == 0)
     {
+        vga_putchar("\n");
         free(argv); 
         return;
     } 
@@ -25,10 +26,12 @@ void detect_command()
     {
         clear_screen();
         reconnu = 1;
+        free(argv);
+        return;
     }
     if (compare_word_buff("info", argv[0]))
     {
-        clear_screen();
+        vga_putchar("\n");
         load_art();
 
         reconnu = 1;
@@ -55,9 +58,9 @@ void detect_command()
         //on aloue la ram a la valeur de argv[1]
         int ram = char_to_int(argv[1]);
         uint32_t *p = allocate(ram);
-        int_to_char((uint32_t)p, adresse);
-        vga_putchar("\n"); vga_putchar(adresse);
+        vga_putchar("\ndone");
         reconnu = 1;
+        
     }
     if (compare_word_buff("free", argv[0]))
     {
@@ -77,6 +80,41 @@ void detect_command()
         reconnu = 1;
         return;
     }
+    if (compare_word_buff("monitor", argv[0]))
+    {
+        free(argv);
+        reconnu = 1;
+        //affiche les ressources de l'ordinateur
+
+        //les ressources
+        uint64_t total_mem = (get_total_ram()/1024/1024);
+        int heap_mem = get_heap_ram_usage();
+        int stack_mem = get_stack_ram_usage();
+        int heap_total_mem = get_heap_ram_usage_and_non_use();
+
+        //les textes
+        char heap_quantity[11];
+        char stack_quantity[11];
+        char total_ram[11];
+        char total_heap[11];
+
+        //mettre les valeurs dans les textes
+        int_to_char(heap_mem, heap_quantity);//quantité de heap utilisé
+        int_to_char(stack_mem, stack_quantity);//quantité de stack utilisé
+        int_to_char(total_mem, total_ram);//quantité de ram dans l ordi
+        int_to_char(heap_total_mem, total_heap);//distance depuis la derniere adresse de heap avec le start
+
+        //print
+        vga_putchar("\n");
+        vga_putchar("ressources ram: "); vga_putchar(total_ram);vga_putchar(" Octets");vga_putchar("\n");
+        vga_putchar("heap usage: "); vga_putchar(heap_quantity);vga_putchar(" Octets");vga_putchar("\n");
+        vga_putchar("stack usage: "); vga_putchar(stack_quantity);vga_putchar(" Octets");vga_putchar("\n");
+        vga_putchar("stack deployment: "); vga_putchar(total_heap);vga_putchar(" Octets");vga_putchar("\n");
+
+        return;
+
+        
+    }
     if (compare_word_buff("load", argv[0]))
     {
         if (argc < 3)
@@ -89,7 +127,6 @@ void detect_command()
         load_program((uint32_t *)hex_to_int(argv[1]), char_to_int(argv[2]));
         free(argv);
         reconnu = 1;
-        return;
         
 
     }
@@ -106,7 +143,6 @@ void detect_command()
         run_program((uint32_t *)hex_to_int(argv[1]), char_to_int(argv[2]));
         free(argv);
         reconnu = 1;
-        return;
         
 
     }
@@ -131,15 +167,12 @@ void detect_command()
         {
             reconnu = 1;
             load_ata(disk_num, lba, secteur_num);
-        }     
-
-        free(argv);
-        
+        }             
     }
 
     if (!reconnu) vga_puchar_color("\ncommande non reconnu", RED_ON_BLACK);
-    
     vga_putchar("\n");
+
     free(argv);
     
 

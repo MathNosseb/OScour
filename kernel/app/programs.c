@@ -59,7 +59,7 @@ void load_program(void *adr, int size)
 }
 
 
-void run_program(void *adr, int size)
+void run_program(void *adr)
 {
     char pointeur[11];
     int_to_char((uint32_t)adr, pointeur);

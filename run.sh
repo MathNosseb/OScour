@@ -70,7 +70,7 @@ xxd Binaries/os.bin > os.hex
 
 qemu-system-x86_64 \
     -enable-kvm -cpu host \
-    -m 1G \
+    -m 2M \
     -monitor stdio \
     -drive format=raw,file=Binaries/os.bin \
     -drive format=raw,file=disk.bin,if=ide

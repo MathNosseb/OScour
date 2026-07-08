@@ -78,7 +78,7 @@ L'execution lance le programme comme une fonction externe. Tout code compilé en
 pour x86 fonctionne. **Pour les données** il est important d'appliquer un decalage qui se fait normalement
 avec org ... mais ici est impossible car l adresse n'est connu qu'au chargement dans la ram.
 L'objectif est de connaitre la position du programme dans la ram.<br>
-Pour ce faire à l'aide de l'IA j'ai trouvé ça:
+En essayant plusieurs choses j'ai reussi a faire ça:
 ```asm
 [bits 32];est pour que nasm comprenne qu'il doit compiler en 32 bits
 call next;push l'adresse de retour sur la stack, jump vers next

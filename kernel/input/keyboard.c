@@ -76,7 +76,7 @@ char* scanCodeToChar(uint8_t scanCode)
                 line_len--;
                 lineBuffer[line_len] = '\0';
             }
-            return "\b";
+            return "\0";
         case 0x39: key = " "; break;//space
         case 0x1C: line_len = 0; clear_buffer(lineBuffer, 256); return "" ;//enter
         case 0x0F: key = "\t"; break;//tab

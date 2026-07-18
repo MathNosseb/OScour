@@ -20,6 +20,19 @@ void reverse_string(char *str) {
     }
 }
 
+char *strcpy(char *destination, char *source)
+{
+    int i;
+
+    i = 0;
+    while (source[i])
+    {
+        destination[i] = source[i];
+        i++;
+    }
+    return (destination);    
+}
+
 void int_to_char(int nbr, char *texte)
 {
     if (nbr == 0) {
@@ -58,7 +71,7 @@ int char_to_int(char *texte)
     return result;
 }
 
-int len_string(char *texte)
+int strlen(char *texte)
 {
     int index = 0;
     while (texte[index] != 0)

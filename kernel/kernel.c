@@ -34,8 +34,8 @@ void _start() {
     //premier affichage
     vga_puchar_color("\nroot@local:", GREEN_ON_BLACK);
 
-    //quantité totale de ram dans l appareil
-      
+    char **historic = allocate(10);//on sauvegarde les 10 dernieres commandes
+    uint8_t historic_cursor = 0;
 
     while (1) {
         //OUTPUT
@@ -53,8 +53,27 @@ void _start() {
                 {
                     //on detecte et execute la variable écrite
                     detect_command();
+                    historic[historic_cursor] = allocate(strlen(get_command()));
+
+                    strcpy(historic[historic_cursor], get_command());
+                    if (historic_cursor < 10)
+                        historic_cursor++;
                     //réaffichage de l utilisateur
                     vga_puchar_color("root@local:", GREEN_ON_BLACK);
+                }
+                //detection touche up
+                if (scancode == 0x48)
+                {
+                    int pos = get_cursor();
+                    if (historic_cursor > 0)
+                    {
+                        set_cursor(pos);
+                        historic_cursor--;
+                        clear_buffer(get_command(), 256);
+                        strcpy(get_command(), historic[historic_cursor]);
+                        vga_putchar(historic[historic_cursor]);
+                    }
+                    
                 }
                 //affichage du texte ecris
                 vga_putchar(scanCodeToChar(scancode));

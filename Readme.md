@@ -74,26 +74,29 @@ Par exemple il y a un programme externe déjà présent dans l'os, on peut le la
 
 Dans un premier temps Oscour va prendre le programme et le mettre dans la heap, il alloue un espace pour 
 le programme, il affiche le contenu en hexa du programme et nous donne son adresse dans la heap.<br>
-L'execution lance le programme comme une fonction externe. Tout code compilé en code machine 32 bits
-pour x86 fonctionne. **Pour les données** il est important d'appliquer un decalage qui se fait normalement
-avec org ... mais ici est impossible car l adresse n'est connu qu'au chargement dans la ram.
-L'objectif est de connaitre la position du programme dans la ram.<br>
-En essayant plusieurs choses j'ai reussi a faire ça:
+L'execution lance le programme comme une fonction externe. <br>
+Ce code asm compile avec [mon Compilateur](https://github.com/MathNosseb/asm-compiler) et peut afficher hello world
 ```asm
-[bits 32];est pour que nasm comprenne qu'il doit compiler en 32 bits
-call next;push l'adresse de retour sur la stack, jump vers next
-next:
-    pop ebx;recupere l'adresse depuis la stack
-    add ebx, hello - next;transforme cette adresse en pointeur vers hello
-    push ebx;met l'adresse de hello sur la stack
-    ; L'os met l'adresse de la fonction print à 0x504
-    mov eax, [0x504];je recupère la fonction à cette adresse
-    call eax;j'appel la fonction de print avec hello sur la stack
-    add esp, 4;je decale mon pointeur de stack de 4 pour effacer hello
-    ret;on revient au code kernel
-
-hello db "Hello from external program", 0
+start:
+    mov eax, 0x6C6C6548; les lettres Hell en little endian
+    mov [0x520], eax; on met les lettres dans la memoire a un espace libre
+    ;le placement dans la mémoire est fait avec un espace toujours libre mais
+    ;attention car ça peut corompre la mémoire d'écrire n'importe ou
+    ;il vaut mieux ecrire dans la stack et recuperer le pointeur avec esp
+    mov eax, 0x6F77206F ; lettres o wo
+    mov [0x524], eax; placer en memoire
+    mov eax, 0x21646C72; rld!
+    mov [0x528], eax; placer en memoire
+    mov eax, 0x00; 0, fin de string
+    mov [0x532], eax; mettre en memoire
+    mov eax, [0x504]; mettre l adresse de la fonction sys print OScour dans eax
+    mov ecx, 0x520; mettre l adresse de la string dans ecx
+    push ecx ; mettre ecx sur la stack
+    call eax; appel de la fonction systeme print
+    pop ecx ; decrementer le stack pointer
+    ret ; revenir au code C
 ```
+
 
 ## Mon compilateur
 J'ai créé un compilateur permettant de créer des programmes pour mon os

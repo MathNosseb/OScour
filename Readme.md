@@ -106,3 +106,5 @@ des valeurs dans des registres et la ram, on peut facilement écrire un programm
 
 # Mon avis
 Ce projet m'a énormément apporté notamment dans les compétences de logique et développement dans le bas niveau (proche de la machine). Je recommanderai ce projet à des personnes expérimentées pour éviter de se décourager comme j'ai pu le faire au début du projet. Si vous souhaitez tout de même réaliser ce projet je recommande de lire beaucoup de documentation sur les fonctionnements de chaque système pour ne pas se faire submerger par les exigences d'un tel projet. C'est un projet qui est vraiment très difficile et qui demande une grande connaissance de technologies difficilement compréhensible, mais cela reste un excellent moyen pour apprendre une grande quantité de choses.
+
+[![Visitors](https://api.visitorbadge.io/api/visitors?path=https%3A%2F%2Fgithub.com%2FMathNosseb%2FOScour&countColor=%23263759)](https://visitorbadge.io/status?path=https%3A%2F%2Fgithub.com%2FMathNosseb%2FOScour)

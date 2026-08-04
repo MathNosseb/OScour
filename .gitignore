@@ -2,3 +2,4 @@ Binaries/
 *.hex
 *.bin
 *.img
+*.o

@@ -10,6 +10,7 @@
 
 void put_fonctions();
 
+__attribute__((section(".text.entry")))
 void _start() {
     //affichage des infos de l OS
     load_art();

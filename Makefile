@@ -5,10 +5,12 @@ OBJS = $(SOURCES:.c=.o)
 CFLAGS = -m32 -ffreestanding -fno-pie -nostdlib -O0
 CFLAGS += -Wall -Wextra -Wno-builtin-declaration-mismatch
 
-all : compile link
+all : compile
 	
 compile :
+	mkdir -p Binaries
 	$(MAKE) $(OBJS)
+	$(MAKE) programs
 	$(MAKE) link
 	$(MAKE) k_binary
 	$(ASM) -f bin bootloader/boot.asm -o Binaries/bootloader.bin
@@ -19,6 +21,9 @@ compile :
 	cat Binaries/bootloader.bin Binaries/kernel.bin > Binaries/os.bin; \
 	printf "$$(printf '%02x' $$secteurs)" | xxd -r -p | dd of=Binaries/os.bin bs=1 seek=167 conv=notrunc
 	$(MAKE) run
+
+programs :
+	nasm -f bin Programs/program.asm -o disk.bin
 
 link :
 	ld -m elf_i386 -T linker.ld -o Binaries/kernel.elf $(OBJS)

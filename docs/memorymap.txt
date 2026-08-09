@@ -1,0 +1,5 @@
+en dessous d 0x500 c est les interuptions bios donc on touche pas
+a 0x500 j ai mis la taille de l os sur 1 octet
+le bootloader est charge a 0x7c00 il fait un secteur max soit 512 octet donc fin a 0x7e00
+l os est charge a 0x1000
+la stack est a 0x80000

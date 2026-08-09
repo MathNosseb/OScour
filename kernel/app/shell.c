@@ -68,8 +68,6 @@ void detect_command()
             free(argv); 
             return;
         }
-        
-        char adresse[9];
         //on aloue la ram a la valeur de argv[1]
         int ram = char_to_int(argv[1]);
         uint32_t *p = allocate(ram);
@@ -102,30 +100,32 @@ void detect_command()
         //affiche les ressources de l'ordinateur
 
         //les ressources
-        uint64_t total_mem = (get_total_ram());
+        uint64_t total_mem = (get_total_ram() / 1024);
         int heap_mem = get_heap_ram_usage();
         int stack_mem = get_stack_ram_usage();
         int heap_total_mem = get_heap_ram_usage_and_non_use();
+        uint32_t tot = get_mem_usage() / 1024;
 
         //les textes
         char heap_quantity[11];
         char stack_quantity[11];
         char total_ram[11];
         char total_heap[11];
+        char total[11];
 
         //mettre les valeurs dans les textes
         int_to_char(heap_mem, heap_quantity);//quantité de heap utilisé
         int_to_char(stack_mem, stack_quantity);//quantité de stack utilisé
         int_to_char(total_mem, total_ram);//quantité de ram dans l ordi
         int_to_char(heap_total_mem, total_heap);//distance depuis la derniere adresse de heap avec le start
-
+        int_to_char(tot, total);
         //print
         vga_putchar("\n");
-        vga_putchar("ressources ram: "); vga_putchar(total_ram);vga_putchar(" Octets");vga_putchar("\n");
+        vga_putchar("ressources ram: "); vga_putchar(total_ram);vga_putchar(" Ko");vga_putchar("\n");
         vga_putchar("heap usage: "); vga_putchar(heap_quantity);vga_putchar(" Octets");vga_putchar("\n");
         vga_putchar("stack usage: "); vga_putchar(stack_quantity);vga_putchar(" Octets");vga_putchar("\n");
-        vga_putchar("stack deployment: "); vga_putchar(total_heap);vga_putchar(" Octets");vga_putchar("\n");
-
+        vga_putchar("heap deployment: "); vga_putchar(total_heap);vga_putchar(" Octets");vga_putchar("\n");
+        vga_putchar(total); vga_putchar("KO / "); vga_putchar(total_ram); vga_putchar("Ko\n");
         return;
 
         

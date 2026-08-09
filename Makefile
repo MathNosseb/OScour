@@ -32,7 +32,7 @@ k_binary :
 	objcopy -O binary Binaries/kernel.elf Binaries/kernel.bin
 
 run :
-	qemu-system-x86_64 -enable-kvm -cpu host -m 2M -monitor stdio -drive format=raw,file=Binaries/os.bin -drive format=raw,file=disk.bin,if=ide
+	qemu-system-x86_64 -enable-kvm -cpu host -m 1025K -monitor stdio -drive format=raw,file=Binaries/os.bin -drive format=raw,file=disk.bin,if=ide
 
 %o : %c
 	$(CC) $(CFLAGS) -c $< -o $@

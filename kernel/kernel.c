@@ -14,6 +14,7 @@ __attribute__((section(".text.entry")))
 void _start() {
     //affichage des infos de l OS
     load_art();
+    analyse_mem();//place le debut de la heap
     //declaration des variables pour contenir les valeurs en texte
     char secteurs[1];
     char stack[7];
@@ -37,7 +38,7 @@ void _start() {
 
     char **historic = allocate(10);//on sauvegarde les 10 dernieres commandes
     uint8_t historic_cursor = 0;
-
+    
     while (1) {
         //OUTPUT
         update_cursor();

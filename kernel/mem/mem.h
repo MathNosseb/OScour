@@ -1,9 +1,9 @@
 #pragma once
 #include "../sys/struct.h"
-#define HEAP_START 0x100000
 
 struct heap
 {
+    uint32_t canarie;
     int size;//taille en octet de la zone
     uint32_t start;//adresse de debut
     uint32_t end;//adresse de fin
@@ -23,3 +23,6 @@ uint64_t get_total_ram();
 void free(void *adr);
 void dump_heap();
 void init_memory();
+void analyse_mem();
+uint32_t get_max_heap_size();
+uint32_t get_mem_usage();

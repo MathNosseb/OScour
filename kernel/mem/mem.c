@@ -3,20 +3,27 @@
 #include "../sys/string.h"
 #include "../sys/hex.h"
 
-uint32_t actual_adr = HEAP_START;
-
-
-
+uint32_t actual_adr = 0;
+uint32_t heap_start = 0;
+uint32_t heap_max = 0;
+struct heap *precend_heap;
 struct e820_entry
 {
-    uint64_t base;
-    uint64_t length;
-    uint32_t type;
+    uint64_t base;//Base address
+    uint64_t length;// Length of "region" (if this value is 0, ignore the entry)
+    uint32_t type;//Region "type"
+    //Type 1: Usable (normal) RAM
+    //Type 2: Reserved - unusable
+    //Type 3: ACPI reclaimable memory
+    //Type 4: ACPI NVS memory
+    //ype 5: Area containing bad memory
     uint32_t acpi;
 } __attribute__((packed));
-
-struct heap *precend_heap;
-
+//atribute packed sert a faire en sorte que en memoire les donnees prennent
+//exactement la place demandé sans paging
+//il ne va pas y avoir d espaces entre les element ca sert a donner une taille stricte
+//entre chaqun des elements et comme je le recupere depuis le bios c est la taille
+//litteral alors il ne faut vrm pas la changer
 
 uint32_t get_stack_ram_usage()
 {
@@ -28,7 +35,7 @@ uint32_t get_stack_ram_usage()
 int get_heap_ram_usage()
 {
     int used = 0;
-    struct heap *header = (struct heap *)HEAP_START;
+    struct heap *header = (struct heap *)heap_start;
     while (header->flag != 0)
     {  
         if (header->free == 1) used += header->size;
@@ -39,15 +46,30 @@ int get_heap_ram_usage()
     
 }
 
+uint32_t get_mem_usage()
+{
+    uint32_t mem = get_total_ram();
+    int nbr_secteur = *(int *)0x500;
+    uint32_t kernel_size = nbr_secteur * 512;
+    uint32_t emplacement = kernel_size + 0x1000;
+    uint32_t stack_size = 0x80000 - emplacement;
+
+    mem -= stack_size;
+    mem -= get_max_heap_size();
+
+    mem += get_stack_ram_usage();
+    mem += actual_adr - heap_start;
+}
+
 uint32_t get_heap_ram_usage_and_non_use()
 {
-    struct heap *header = (struct heap *)HEAP_START;
+    struct heap *header = (struct heap *)heap_start;
     while (header->flag != 0)
     {  
         header = (struct heap *)header->suivant;
     }
     uint32_t size = (uint32_t)((uint32_t)header+sizeof(struct heap));
-    return size - HEAP_START;
+    return size - heap_start;
     
 }
 
@@ -66,23 +88,90 @@ uint64_t get_total_ram()
 
     for (int i = 0; i < count; i++)
     {
-        if (entries[i].type == 1)
-        {
-            total += entries[i].length;
-        }
+        total += entries[i].length;
     }
 
     return total;
 }
 
+void analyse_mem()
+{
+    struct e820_entry *entries = (struct e820_entry *)0x8004;
+    uint16_t count = *(uint16_t *)0x8000;
+    struct e820_entry biggest;
+    biggest.type = 2;
+    biggest.length = 0;
+
+    uint32_t tot = 0;
+    for (int i = 0; i < count; i++)
+    {
+        if (entries[i].base != 0 && entries[i].type == 1 && entries[i].length > biggest.length)
+            biggest = entries[i];
+        char base[16];
+        char size[16];
+        char type[16];
+        int_to_hex(entries[i].base, base);
+        int_to_char(entries[i].length/1024, size);
+        int_to_char(entries[i].type, type);
+        vga_putchar(base);
+        vga_putchar(" ");
+        vga_putchar(size);
+        vga_putchar("Ko ");
+        vga_putchar(type);
+        vga_putchar("\n");
+        tot += entries[i].length;
+    }
+
+    if (biggest.type == 2)
+        vga_putchar("KERNEL PANIC pas assez de ram\n");
+    else
+    {
+        actual_adr = biggest.base;
+        heap_start = biggest.base;
+        heap_max = biggest.length;
+        char tot_size[16];
+        int_to_char(tot/1024, tot_size);
+        vga_putchar(tot_size);
+        vga_putchar("Ko de ram tot\nusable :\n");    
+        char base[16];
+        char size[16];
+        char type[16];
+        int_to_hex(biggest.base/1024/1024, base);
+        int_to_char(biggest.length/1024, size);
+        int_to_char(biggest.type, type);
+        vga_putchar(base);
+        vga_putchar("Mo ");
+        vga_putchar(size);
+        vga_putchar("Ko ");
+        vga_putchar(type);
+        vga_putchar("\n");
+    }
+}
+
+uint32_t get_max_heap_size()
+{
+    struct e820_entry *entries = (struct e820_entry *)0x8004;
+    uint16_t count = *(uint16_t *)0x8000;
+    struct e820_entry heap;
+    heap.length = 0;
+
+    for (int i = 0; i < count; i++)
+    {
+        if (entries[i].base != 0 && entries[i].type == 1 && entries[i].length > heap.length)
+            heap = entries[i];
+    }
+
+    return (heap.length);
+}
+
 void dump_heap()
 {
     vga_putchar("\n");
-    struct heap *h = (struct heap *)HEAP_START;
+    struct heap *h = (struct heap *)heap_start;
     int index = 0;
     while (1)
     {
-        char number[2]; int_to_char(index, number);
+        char number[5]; int_to_char(index, number);
         char flag[5]; int_to_char(h->flag, flag);
         char size[5]; int_to_char(h->size, size);
         char free[5]; int_to_char(h->free, free);
@@ -160,6 +249,12 @@ void heap_stress_test()
         {
             ptrs[i] = allocate((i % 32) + 1);
         }
+        vga_putchar("done");
+        // phase 5 : libération totale
+        for (int i = 0; i < 200; i++)
+        {
+            free(ptrs[i]);
+        }
     }
 }
 
@@ -188,20 +283,28 @@ on peut assigner sa valeur
 void *allocate(int size)
 {
     //on va essayer de trouver un bloc libre qui a une taille bien libre
-    struct heap *finder = (struct heap *)HEAP_START;//on part de l origine
     int find = 0;
-    while (1)
+    struct heap *finder = (struct heap *)heap_start;
+    while (finder)
     {
+        if (finder->canarie != 0xFFFFFFFF && finder->size != 0)
+        {
+            vga_putchar("Kernel Panic finder");
+        }
+
+        if ((struct heap *)finder->suivant)
+        {
+            if (((struct heap *)finder->suivant)->canarie != 0xFFFFFFFF)
+                vga_putchar("Kernel Panic suivant\n");
+        }
         if (finder->free == 0 && finder->size >= size)
         {
             find = 1;
             break;
         }
-        if (finder->flag == 0) break;
         finder = (struct heap *)finder->suivant;
     }
 
-    
     if (find)//si un bloc libre est trouvé
     {
         uint32_t use_adresse = (uint32_t)finder;//adresse du bloc
@@ -219,6 +322,7 @@ void *allocate(int size)
         {
             //on créer un espace
             struct heap *new_finder = (struct heap *)finder->end;
+            new_finder->canarie = 0xFFFFFFFF;
             new_finder->start = finder->end;
             new_finder->end = ((struct heap *)finder->suivant)->start;
             new_finder->free = 0;
@@ -240,6 +344,7 @@ void *allocate(int size)
 
     
     struct heap *bloc = (struct heap *)actual_adr;
+    bloc->canarie = 0xFFFFFFFF;
     bloc->start = actual_adr;
     bloc->end = bloc->start + size + sizeof(struct heap);
     bloc->size = size;
@@ -248,7 +353,7 @@ void *allocate(int size)
 
     uint32_t *content = (uint32_t *)((uint8_t *)bloc + sizeof(struct heap));
     
-    if (actual_adr != HEAP_START)
+    if (actual_adr != heap_start)
     {
         precend_heap->suivant = (uint32_t)bloc;
         precend_heap->flag = 1;

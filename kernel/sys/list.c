@@ -41,20 +41,20 @@ void afficher_liste(struct Node *list){
     while (tete->addrNext != 0)
     {
         char value_text[sizeof(tete->value)];
-        int_to_char(*(uint32_t *)tete->value, value_text);
-        vga_putchar(value_text); vga_putchar("\n");
+        itoa(*(uint32_t *)tete->value, value_text);
+        kprint(value_text); kprint("\n");
         /*
         char tete_text[sizeof(struct Node)];
-        int_to_char((uint32_t)tete, tete_text);
-        vga_putchar(tete_text); vga_putchar("\n");
+        itoa((uint32_t)tete, tete_text);
+        kprint(tete_text); kprint("\n");
 
         char addrNext_text[sizeof(struct Node)];
-        int_to_char((uint32_t)tete->addrNext, addrNext_text);
-        vga_putchar(addrNext_text); vga_putchar("\n");
+        itoa((uint32_t)tete->addrNext, addrNext_text);
+        kprint(addrNext_text); kprint("\n");
 
         char addrPrecedent_text[sizeof(struct Node)];
-        int_to_char((uint32_t)tete->addrPrecedent, addrPrecedent_text);
-        vga_putchar(addrPrecedent_text); vga_putchar("\n");*/
+        itoa((uint32_t)tete->addrPrecedent, addrPrecedent_text);
+        kprint(addrPrecedent_text); kprint("\n");*/
         tete = tete->addrNext;
     }
     
@@ -76,10 +76,10 @@ struct Node *pop_liste(struct Node *list, int index)
 
     // debug optionnel
     char value_text[16];
-    int_to_char((uint32_t)current->value, value_text);
-    vga_putchar("suppression: ");
-    vga_putchar(value_text);
-    vga_putchar("\n");
+    itoa((uint32_t)current->value, value_text);
+    kprint("suppression: ");
+    kprint(value_text);
+    kprint("\n");
 
     if (current->addrPrecedent != 0)
         current->addrPrecedent->addrNext = current->addrNext;

@@ -30,7 +30,7 @@ void read_ata(int disk_num, uint32_t lba, int sec_number)
     {
         char value_text[3];
         int_to_hex((uint8_t)adr[value], value_text);
-        vga_putchar(value_text); vga_putchar(" ");
+        kprint(value_text); kprint(" ");
     }
 
     free(adr);

@@ -8,13 +8,14 @@
 #define WHITE_ON_BLUE    0x17
 #define BLACK_ON_WHITE   0x70
 
-
-void vga_putchar(char *);
-void vga_puchar_color(char *, uint8_t);
-void update_cursor();
-void set_cursor(int);
-int get_cursor();
-void clear_screen();
-void load_art();
-void print_at(int x, int y, char *text);
-void scroll_screen();
+void    kprint(char *);
+void    write_char(char c);
+void    kprint_color(char *, uint8_t);
+void    update_cursor();
+void    set_cursor(int);
+int     get_cursor();
+void    clear_screen();
+void    load_art();
+void    print_at(int x, int y, char *text);
+void    scroll_screen();
+void	ft_putnbr(int nb);

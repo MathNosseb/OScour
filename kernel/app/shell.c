@@ -15,7 +15,7 @@ void detect_command()
 
     if (argc == 0)
     {
-        vga_putchar("\n");
+        kprint("\n");
         free(argv); 
         return;
     } 
@@ -27,7 +27,7 @@ void detect_command()
     {
         reconnu = 1;
         free(argv);
-        vga_putchar("\n");
+        kprint("\n");
         system_functions_descriptions(argc, argv);
         return;
     }
@@ -46,18 +46,18 @@ void detect_command()
     }
     if (compare_word_buff("info", argv[0]))
     {
-        vga_putchar("\n");
+        kprint("\n");
         load_art();
 
         reconnu = 1;
     }
     if (compare_word_buff("echo", argv[0]))
     {
-        vga_putchar("\n");
+        kprint("\n");
         for (int index = 0; index < argc - 1; index++)
         {
-            vga_putchar(argv[index + 1]);
-            vga_putchar(" ");
+            kprint(argv[index + 1]);
+            kprint(" ");
         }
         reconnu = 1;
     }
@@ -69,9 +69,9 @@ void detect_command()
             return;
         }
         //on aloue la ram a la valeur de argv[1]
-        int ram = char_to_int(argv[1]);
+        int ram = ft_atoi(argv[1]);
         uint32_t *p = allocate(ram);
-        vga_putchar("\ndone");
+        kprint("\ndone");
         reconnu = 1;
         
     }
@@ -105,30 +105,15 @@ void detect_command()
         int stack_mem = get_stack_ram_usage();
         int heap_total_mem = get_heap_ram_usage_and_non_use();
         uint32_t tot = get_mem_usage() / 1024;
-
-        //les textes
-        char heap_quantity[11];
-        char stack_quantity[11];
-        char total_ram[11];
-        char total_heap[11];
-        char total[11];
-
-        //mettre les valeurs dans les textes
-        int_to_char(heap_mem, heap_quantity);//quantité de heap utilisé
-        int_to_char(stack_mem, stack_quantity);//quantité de stack utilisé
-        int_to_char(total_mem, total_ram);//quantité de ram dans l ordi
-        int_to_char(heap_total_mem, total_heap);//distance depuis la derniere adresse de heap avec le start
-        int_to_char(tot, total);
-        //print
-        vga_putchar("\n");
-        vga_putchar("ressources ram: "); vga_putchar(total_ram);vga_putchar(" Ko");vga_putchar("\n");
-        vga_putchar("heap usage: "); vga_putchar(heap_quantity);vga_putchar(" Octets");vga_putchar("\n");
-        vga_putchar("stack usage: "); vga_putchar(stack_quantity);vga_putchar(" Octets");vga_putchar("\n");
-        vga_putchar("heap deployment: "); vga_putchar(total_heap);vga_putchar(" Octets");vga_putchar("\n");
-        vga_putchar(total); vga_putchar("KO / "); vga_putchar(total_ram); vga_putchar("Ko\n");
-        return;
-
         
+        //print
+        kprint("\n");
+        kprint("ressources ram: "); ft_putnbr(total_mem);kprint(" Ko");kprint("\n");
+        kprint("heap usage: "); ft_putnbr(heap_mem);kprint(" Octets");kprint("\n");
+        kprint("stack usage: "); ft_putnbr(stack_mem);kprint(" Octets");kprint("\n");
+        kprint("heap deployment: "); ft_putnbr(heap_total_mem);kprint(" Octets");kprint("\n");
+        ft_putnbr(tot); kprint("KO / "); ft_putnbr(total_mem); kprint("Ko\n");
+        return;
     }
     if (compare_word_buff("load", argv[0]))
     {
@@ -138,8 +123,8 @@ void detect_command()
             return;
         } 
         //recuperer l adresse
-        vga_putchar("\n");
-        load_program((uint32_t *)hex_to_int(argv[1]), char_to_int(argv[2]));
+        kprint("\n");
+        load_program((uint32_t *)hex_to_int(argv[1]), ft_atoi(argv[2]));
         free(argv);
         reconnu = 1;
     }
@@ -152,7 +137,7 @@ void detect_command()
             return;
         } 
         //recuperer l adresse
-        vga_putchar("\n");
+        kprint("\n");
         run_program((uint32_t *)hex_to_int(argv[1]));
         free(argv);
         reconnu = 1;
@@ -167,10 +152,10 @@ void detect_command()
             return;
         } 
 
-        vga_putchar("\n");
-        int disk_num = char_to_int(argv[2]);
-        uint32_t lba = char_to_int(argv[3]);
-        int secteur_num = char_to_int(argv[4]);
+        kprint("\n");
+        int disk_num = ft_atoi(argv[2]);
+        uint32_t lba = ft_atoi(argv[3]);
+        int secteur_num = ft_atoi(argv[4]);
 
         if(compare_word_buff("read", argv[1]))
         {
@@ -183,8 +168,8 @@ void detect_command()
         }             
     }
 
-    if (!reconnu) vga_puchar_color("\ncommande non reconnu", RED_ON_BLACK);
-    vga_putchar("\n");
+    if (!reconnu) kprint_color("\ncommande non reconnu", RED_ON_BLACK);
+    kprint("\n");
 
     free(argv);
     
@@ -244,78 +229,78 @@ void system_functions_descriptions(int argc, char **argv)
         //demande le detail d'une fonction
         if (compare_word_buff("man", argv[1]))
         {
-            vga_putchar("INCEPTION\n");
-            vga_putchar("affiche les details d'une fonction systeme\n");
+            kprint("INCEPTION\n");
+            kprint("affiche les details d'une fonction systeme\n");
         }
         else if (compare_word_buff("clear", argv[1]))
         {
-            vga_putchar("efface l'ecran\n");
+            kprint("efface l'ecran\n");
         }else if(compare_word_buff("info", argv[1]))
         {
-            vga_putchar("affiche les infos systeme\n");
+            kprint("affiche les infos systeme\n");
         }else if(compare_word_buff("echo", argv[1]))
         {
-            vga_putchar("affiche du texte a l'ecran\n");
-            vga_putchar("les parametres sont tous affiches\n");
+            kprint("affiche du texte a l'ecran\n");
+            kprint("les parametres sont tous affiches\n");
         }else if(compare_word_buff("allocate", argv[1]))
         {
-            vga_putchar("alloue une certaine quantite de memoire en octet dans la heap\n");
-            vga_putchar("prend un parametre qui est un nombre en octet\n");
-            vga_putchar("affiche \"done\" quand il a fini\n");
+            kprint("alloue une certaine quantite de memoire en octet dans la heap\n");
+            kprint("prend un parametre qui est un nombre en octet\n");
+            kprint("affiche \"done\" quand il a fini\n");
         }else if(compare_word_buff("allocate", argv[1]))
         {
-            vga_putchar("reserve une quantite de memoire dans la heap\n");   
-            vga_putchar("prend en parametre la quantite en octet de ram a allouer\n");
+            kprint("reserve une quantite de memoire dans la heap\n");   
+            kprint("prend en parametre la quantite en octet de ram a allouer\n");
         }else if(compare_word_buff("free", argv[1]))
         {
-            vga_putchar("libere la ram alloue avec allocate\n");
-            vga_putchar("prend l adresse de la donnee\n");
+            kprint("libere la ram alloue avec allocate\n");
+            kprint("prend l adresse de la donnee\n");
         }else if(compare_word_buff("dump", argv[1]))
         {
-            vga_putchar("affiche les blocs memoire alloue libre ou non\n");
-            vga_putchar("permet de connaitre l'adresse des blocs\n");
+            kprint("affiche les blocs memoire alloue libre ou non\n");
+            kprint("permet de connaitre l'adresse des blocs\n");
         }else if(compare_word_buff("monitor", argv[1]))
         {
-            vga_putchar("affiche les ressources de l'ordinateur\n");
+            kprint("affiche les ressources de l'ordinateur\n");
         }else if(compare_word_buff("load", argv[1]))
         {
-            vga_putchar("charge depuis le primary disque dans la heap\n");
-            vga_putchar("1er parametre: adresse sur le disque");
-            vga_putchar("2eme parametre: taille de la donnee en octet");
-            vga_putchar("affiche l'adresse dansizes la heap du debut de la donnee\n");
-            vga_putchar("affiche en hexadecimal les donnees stockes\n");
+            kprint("charge depuis le primary disque dans la heap\n");
+            kprint("1er parametre: adresse sur le disque");
+            kprint("2eme parametre: taille de la donnee en octet");
+            kprint("affiche l'adresse dansizes la heap du debut de la donnee\n");
+            kprint("affiche en hexadecimal les donnees stockes\n");
         }else if(compare_word_buff("run", argv[1]))
         {
-            vga_putchar("lance un programme qui se trouve dans la heap\n");
-            vga_putchar("1er parametre: adresse du programme dans la heap\n");
-            vga_putchar("saute au programme comme une fonction standart\n");
+            kprint("lance un programme qui se trouve dans la heap\n");
+            kprint("1er parametre: adresse du programme dans la heap\n");
+            kprint("saute au programme comme une fonction standart\n");
         }else if(compare_word_buff("ata", argv[1]))
         {
-            vga_putchar("affiche des donnees dans le disque / les charges dans la ram\n");
-            vga_putchar("1er param -> read or load\n");
-            vga_putchar("2eme param -> numero du disque (1 pour le slave et 0 pour le primaire)\n");
-            vga_putchar("3eme param -> adresse lba\n");
-            vga_putchar("4eme param -> quantite de secteur a lire ou charger\n");
+            kprint("affiche des donnees dans le disque / les charges dans la ram\n");
+            kprint("1er param -> read or load\n");
+            kprint("2eme param -> numero du disque (1 pour le slave et 0 pour le primaire)\n");
+            kprint("3eme param -> adresse lba\n");
+            kprint("4eme param -> quantite de secteur a lire ou charger\n");
         }else if(compare_word_buff("shutdown", argv[1])){
-            vga_putchar("eteint l'ordinateur\n");
-            vga_putchar("fonctionne sur VirtualBox et Qemu\n");
+            kprint("eteint l'ordinateur\n");
+            kprint("fonctionne sur VirtualBox et Qemu\n");
         }else{
-            vga_putchar("la commande n'existe pas\n");
+            kprint("la commande n'existe pas\n");
         }
     }else{
         //detail de toutes les fonctions systèmes
-        vga_putchar("man -> donne les details des programmes\n");
-        vga_putchar("clear -> efface l'ecran\n");
-        vga_putchar("info -> infos systeme\n");
-        vga_putchar("echo -> affiche du texte\n");
-        vga_putchar("allocate -> alloue de la memoire\n");
-        vga_putchar("free -> libere de la memoire\n");
-        vga_putchar("dump -> affiche le contenu de la memoire\n");
-        vga_putchar("monitor -> affiche les ressources\n");
-        vga_putchar("load -> charge depuis le primary disque dans la heap\n");
-        vga_putchar("run -> lance un programme situe dans la ram\n");
-        vga_putchar("ata -> lit un disque ou charge un disque en memoire\n");
-        vga_putchar("shutdown -> arret de l'ordinateur\n");
+        kprint("man -> donne les details des programmes\n");
+        kprint("clear -> efface l'ecran\n");
+        kprint("info -> infos systeme\n");
+        kprint("echo -> affiche du texte\n");
+        kprint("allocate -> alloue de la memoire\n");
+        kprint("free -> libere de la memoire\n");
+        kprint("dump -> affiche le contenu de la memoire\n");
+        kprint("monitor -> affiche les ressources\n");
+        kprint("load -> charge depuis le primary disque dans la heap\n");
+        kprint("run -> lance un programme situe dans la ram\n");
+        kprint("ata -> lit un disque ou charge un disque en memoire\n");
+        kprint("shutdown -> arret de l'ordinateur\n");
     }
     
 }

@@ -25,20 +25,20 @@ void _start() {
     uint32_t emplacement = kernel_size + 0x1000;
     uint32_t stack_size = 0x80000 - emplacement;
     //passage des nombres en texte
-    int_to_char(nbr_secteur,secteurs);
-    int_to_char(stack_size, stack);
+    itoa(nbr_secteur,secteurs);
+    itoa(stack_size, stack);
     //affichage des secteurs chargés et de la quantité de stack dispo
-    vga_puchar_color(secteurs, CYAN_ON_BLACK); vga_puchar_color(" secteurs, ", CYAN_ON_BLACK); 
-    vga_puchar_color(stack, CYAN_ON_BLACK); vga_puchar_color(" Octets de stack dispo", CYAN_ON_BLACK); 
+    kprint_color(secteurs, CYAN_ON_BLACK); kprint_color(" secteurs, ", CYAN_ON_BLACK); 
+    kprint_color(stack, CYAN_ON_BLACK); kprint_color(" Octets de stack dispo", CYAN_ON_BLACK); 
     
     put_fonctions();
 
     //premier affichage
-    vga_puchar_color("\nroot@local:", GREEN_ON_BLACK);
+    kprint_color("\nroot@local:", GREEN_ON_BLACK);
 
     char **historic = allocate(10);//on sauvegarde les 10 dernieres commandes
     uint8_t historic_cursor = 0;
-    
+
     while (1) {
         //OUTPUT
         update_cursor();
@@ -61,7 +61,7 @@ void _start() {
                     if (historic_cursor < 10)
                         historic_cursor++;
                     //réaffichage de l utilisateur
-                    vga_puchar_color("root@local:", GREEN_ON_BLACK);
+                    kprint_color("root@local:", GREEN_ON_BLACK);
                 }
                 //detection touche up
                 if (scancode == 0x48)
@@ -73,12 +73,12 @@ void _start() {
                         historic_cursor--;
                         clear_buffer(get_command(), 256);
                         strcpy(get_command(), historic[historic_cursor]);
-                        vga_putchar(historic[historic_cursor]);
+                        kprint(historic[historic_cursor]);
                     }
                     
                 }
                 //affichage du texte ecris
-                vga_putchar(scanCodeToChar(scancode));
+                kprint(scanCodeToChar(scancode));
             }
             
         }        
@@ -88,8 +88,8 @@ void _start() {
 /// @brief met les adresses des fonctions systèmes en mémoire
 void put_fonctions()
 {
-    //on met l'adresse de la fonction vga_putchar dans la memoire
+    //on met l'adresse de la fonction kprint dans la memoire
     //permet aux programmes externes de l utiliser
     void **table = (void **)0x504;
-    *table = (void *)vga_putchar;
+    *table = (void *)kprint;
 }

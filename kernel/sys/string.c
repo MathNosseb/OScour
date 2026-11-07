@@ -2,22 +2,33 @@
 #include "struct.h"
 #include "../mem/mem.h"
 #include "../output/vga.h"
-void reverse_string(char *str) {
-    int i = 0;
-    int j = 0;
 
-    while (str[j] != '\0')
-        j++;
+int strlen(char *str)
+{
+    int i;
 
-    j--;
-
-    while (i < j) {
-        char tmp = str[i];
-        str[i] = str[j];
-        str[j] = tmp;
+    i = 0;
+    while (str[i])
         i++;
-        j--;
+    return (i);    
+}
+
+void reverse_string(char *str)
+{
+    int     size;
+    int     i;
+    char    temp;
+
+    size = strlen(str);
+    i = 0;
+    while (i < size / 2)
+    {
+        temp = str[i];
+        str[i] = str[size - i - 1];
+        str[size - i - 1] = temp;
+        i++;
     }
+    str[size] = '\0';
 }
 
 char *strcpy(char *destination, char *source)
@@ -30,6 +41,7 @@ char *strcpy(char *destination, char *source)
         destination[i] = source[i];
         i++;
     }
+    destination[i] = '\0';
     return (destination);    
 }
 
@@ -41,52 +53,54 @@ int strcmp(char *s1, char *s2)
 	return ((unsigned char)s1[i] - (unsigned char)s2[i]); 
 }
 
-void int_to_char(int nbr, char *texte)
+char    *itoa(int nbr, char *str)
 {
+    int index;
+
+    index = 0;
     if (nbr == 0) {
-        texte[0] = '0';
-        texte[1] = '\0';
-        return;
+        str[0] = '0';
+        str[1] = '\0';
+        return (str);
     }
-
-    int index = 0;
-
     if (nbr < 0) {
-        texte[index++] = '-';
+        str[index++] = '-';
         nbr = -nbr;
     }
-
     while (nbr > 0) {
-        texte[index++] = '0' + (nbr % 10);
+        str[index++] = '0' + (nbr % 10);
         nbr /= 10;
     }
-    texte[index] = '\0';
-
-    reverse_string(texte + (texte[0] == '-' ? 1 : 0));
+    str[index] = '\0';
+    reverse_string(str + (str[0] == '-' ? 1 : 0));
+    return (str);
 }
 
-int char_to_int(char *texte)
+int ft_atoi(char *str)
 {
-    int result = 0;
-    int i = 0;
+	int	nbr;
+	int	negative;
+	int	i;
 
-    while (texte[i] != '\0')
-    {
-        result = result * 10 + (texte[i] - '0');
-        i++;
-    }
-
-    return result;
-}
-
-int strlen(char *texte)
-{
-    int index = 0;
-    while (texte[index] != 0)
-    {
-        index++;
-    }
-    return index;    
+	nbr = 0;
+	negative = 0;
+	i = 0;
+	while (str[i] == ' ' || (str[i] >= 9 && str[i] <= 13))
+		i++;
+	while (str[i] == '+' || str[i] == '-')
+	{
+		if (str[i] == '-')
+			negative++;
+		i++;
+	}
+	while (str[i] >= '0' && str[i] <= '9')
+	{
+		nbr = nbr * 10 + (str[i] - '0');
+		i++;
+	}
+	if (negative % 2)
+		return (-nbr);
+	return (nbr);
 }
 
 char *replace_char(char *str, char from, char by)
@@ -101,44 +115,38 @@ char *replace_char(char *str, char from, char by)
 
 char **split_words(char *str, int *count)
 {
-    int i = 0;
-    int words = 0;
+    int i;
+    int words_nbr;
+    int idx;
+    char **words;
 
+    i = 0;
+    words_nbr = 0;
+    idx = 0;
     // compter
     while (str[i])
     {
         if (str[i] != ' ' && (i == 0 || str[i - 1] == ' '))
-            words++;
+            words_nbr++;
         i++;
     }
-
-    *count = words;
-
-    char **mot = allocate(sizeof(char *) * words);
-
+    *count = words_nbr;
+    words = allocate(sizeof(char *) * words_nbr);
     i = 0;
-    int idx = 0;
-
     while (str[i])
     {
-        // skip spaces
         while (str[i] == ' ')
             i++;
-
         if (!str[i])
             break;
-
-        mot[idx++] = &str[i];
-
+        words[idx++] = &str[i];
         while (str[i] && str[i] != ' ')
             i++;
-
         if (str[i] == ' ')
         {
             str[i] = '\0';
             i++;
         }
     }
-
-    return mot;
+    return (words);
 }

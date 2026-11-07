@@ -59,6 +59,7 @@ uint32_t get_mem_usage()
 
     mem += get_stack_ram_usage();
     mem += actual_adr - heap_start;
+    return (mem);
 }
 
 uint32_t get_heap_ram_usage_and_non_use()
@@ -111,40 +112,40 @@ void analyse_mem()
         char size[16];
         char type[16];
         int_to_hex(entries[i].base, base);
-        int_to_char(entries[i].length/1024, size);
-        int_to_char(entries[i].type, type);
-        vga_putchar(base);
-        vga_putchar(" ");
-        vga_putchar(size);
-        vga_putchar("Ko ");
-        vga_putchar(type);
-        vga_putchar("\n");
+        itoa(entries[i].length/1024, size);
+        itoa(entries[i].type, type);
+        kprint(base);
+        kprint(" ");
+        kprint(size);
+        kprint("Ko ");
+        kprint(type);
+        kprint("\n");
         tot += entries[i].length;
     }
 
     if (biggest.type == 2)
-        vga_putchar("KERNEL PANIC pas assez de ram\n");
+        kprint("KERNEL PANIC pas assez de ram\n");
     else
     {
         actual_adr = biggest.base;
         heap_start = biggest.base;
         heap_max = biggest.length;
         char tot_size[16];
-        int_to_char(tot/1024, tot_size);
-        vga_putchar(tot_size);
-        vga_putchar("Ko de ram tot\nusable :\n");    
+        itoa(tot/1024, tot_size);
+        kprint(tot_size);
+        kprint("Ko de ram tot\nusable :\n");    
         char base[16];
         char size[16];
         char type[16];
         int_to_hex(biggest.base/1024/1024, base);
-        int_to_char(biggest.length/1024, size);
-        int_to_char(biggest.type, type);
-        vga_putchar(base);
-        vga_putchar("Mo ");
-        vga_putchar(size);
-        vga_putchar("Ko ");
-        vga_putchar(type);
-        vga_putchar("\n");
+        itoa(biggest.length/1024, size);
+        itoa(biggest.type, type);
+        kprint(base);
+        kprint("Mo ");
+        kprint(size);
+        kprint("Ko ");
+        kprint(type);
+        kprint("\n");
     }
 }
 
@@ -166,26 +167,26 @@ uint32_t get_max_heap_size()
 
 void dump_heap()
 {
-    vga_putchar("\n");
+    kprint("\n");
     struct heap *h = (struct heap *)heap_start;
     int index = 0;
     while (1)
     {
-        char number[5]; int_to_char(index, number);
-        char flag[5]; int_to_char(h->flag, flag);
-        char size[5]; int_to_char(h->size, size);
-        char free[5]; int_to_char(h->free, free);
+        char number[5]; itoa(index, number);
+        char flag[5]; itoa(h->flag, flag);
+        char size[5]; itoa(h->size, size);
+        char free[5]; itoa(h->free, free);
         char prec[20]; int_to_hex(h->precedent, prec);
         char suiv[20]; int_to_hex(h->suivant, suiv);
         char adrr[20]; int_to_hex((uint32_t)h, adrr);
         char val_adr[20]; int_to_hex((uint32_t)((uint32_t)h+sizeof(struct heap)), val_adr);
         
-        vga_putchar("bloc(");vga_putchar(number); vga_putchar(") flag:"); vga_putchar(flag);
-        vga_putchar(" size:"); vga_putchar(size);
-        vga_putchar(" free:");vga_putchar(free); vga_putchar(" prec:");vga_putchar(prec);
-        vga_putchar(" suiv:");vga_putchar(suiv);vga_putchar(" adr:"); vga_putchar(adrr);
-        vga_putchar(" val:"); vga_putchar(val_adr);
-        vga_putchar("\n");
+        kprint("bloc(");kprint(number); kprint(") flag:"); kprint(flag);
+        kprint(" size:"); kprint(size);
+        kprint(" free:");kprint(free); kprint(" prec:");kprint(prec);
+        kprint(" suiv:");kprint(suiv);kprint(" adr:"); kprint(adrr);
+        kprint(" val:"); kprint(val_adr);
+        kprint("\n");
         if (h->flag == 0) break;
         h = (struct heap *)h->suivant;
         index++;
@@ -195,7 +196,7 @@ void dump_heap()
 
 void heap_stress_test()
 {
-    vga_putchar("\nstress");
+    kprint("\nstress");
     void *ptrs[200];
 
     for (int cycle = 0; cycle < 2; cycle++)
@@ -232,7 +233,7 @@ void heap_stress_test()
                 {
                     // corruption détectée (tu peux breakpoint ici)
                     *((volatile int *)0xDEAD) = 1;
-                    vga_putchar("\ncorruption");
+                    kprint("\ncorruption");
                 }
             }
         }
@@ -249,7 +250,7 @@ void heap_stress_test()
         {
             ptrs[i] = allocate((i % 32) + 1);
         }
-        vga_putchar("done");
+        kprint("done");
         // phase 5 : libération totale
         for (int i = 0; i < 200; i++)
         {
@@ -289,13 +290,13 @@ void *allocate(int size)
     {
         if (finder->canarie != 0xFFFFFFFF && finder->size != 0)
         {
-            vga_putchar("Kernel Panic finder");
+            kprint("Kernel Panic finder");
         }
 
         if ((struct heap *)finder->suivant)
         {
             if (((struct heap *)finder->suivant)->canarie != 0xFFFFFFFF)
-                vga_putchar("Kernel Panic suivant\n");
+                kprint("Kernel Panic suivant\n");
         }
         if (finder->free == 0 && finder->size >= size)
         {

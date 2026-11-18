@@ -7,32 +7,39 @@ uint32_t actual_adr = 0;
 uint32_t heap_start = 0;
 uint32_t heap_max = 0;
 struct heap *precend_heap;
-struct e820_entry
-{
-    uint64_t base;//Base address
-    uint64_t length;// Length of "region" (if this value is 0, ignore the entry)
-    uint32_t type;//Region "type"
-    //Type 1: Usable (normal) RAM
-    //Type 2: Reserved - unusable
-    //Type 3: ACPI reclaimable memory
-    //Type 4: ACPI NVS memory
-    //ype 5: Area containing bad memory
-    uint32_t acpi;
-} __attribute__((packed));
-//atribute packed sert a faire en sorte que en memoire les donnees prennent
-//exactement la place demandé sans paging
-//il ne va pas y avoir d espaces entre les element ca sert a donner une taille stricte
-//entre chaqun des elements et comme je le recupere depuis le bios c est la taille
-//litteral alors il ne faut vrm pas la changer
 
-uint32_t get_stack_ram_usage()
+
+void	init_memory_info(void)
 {
-    uint32_t esp;
+	char		secteurs[16];
+	char		stack[16];
+	int			nbr_secteur;
+	uint32_t	kernel_size;
+	uint32_t	emplacement;
+	uint32_t	stack_size;
+
+	analyse_mem();
+	nbr_secteur = *(int *)SECTORS_NUMBER;
+    //calcul de la stack disponible connaissant stack size, kernel size et l emplacement
+    kernel_size = nbr_secteur * 512;
+    emplacement = kernel_size + 0x1000;
+    stack_size = 0x80000 - emplacement;
+    itoa(nbr_secteur,secteurs);
+    itoa(stack_size, stack);
+    //affichage des secteurs chargés et de la quantité de stack dispo
+    kprint_color(secteurs, CYAN_ON_BLACK); kprint_color(" secteurs, ", CYAN_ON_BLACK); 
+    kprint_color(stack, CYAN_ON_BLACK); kprint_color(" Octets de stack dispo", CYAN_ON_BLACK);
+}
+
+uint32_t	get_stack_ram_usage()
+{
+    uint32_t	esp;
+
     asm volatile ("mov %%esp, %0" : "=r"(esp));
     return 0x80000 - esp;
 }
 
-int get_heap_ram_usage()
+int	get_heap_ram_usage()
 {
     int used = 0;
     struct heap *header = (struct heap *)heap_start;
@@ -186,8 +193,8 @@ void dump_heap()
         kprint(" free:");kprint(free); kprint(" prec:");kprint(prec);
         kprint(" suiv:");kprint(suiv);kprint(" adr:"); kprint(adrr);
         kprint(" val:"); kprint(val_adr);
-        kprint("\n");
         if (h->flag == 0) break;
+        kprint("\n");
         h = (struct heap *)h->suivant;
         index++;
     }
@@ -308,7 +315,6 @@ void *allocate(int size)
 
     if (find)//si un bloc libre est trouvé
     {
-        uint32_t use_adresse = (uint32_t)finder;//adresse du bloc
         //on change pas le suivant ni le precendent mais on créer un espace vide (orphelin)
         finder->end = finder->start + size + sizeof(struct heap);
         finder->size = size;

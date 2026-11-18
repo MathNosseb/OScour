@@ -31,7 +31,18 @@ void reverse_string(char *str)
     str[size] = '\0';
 }
 
-char *strcpy(char *destination, char *source)
+void    memset(void *destination, char data, unsigned int size)
+{
+    unsigned int    i;
+    char            *dest;
+
+    i = 0;
+    dest = (char *)destination;
+    while (i < size)
+        dest[i++] = data;
+}
+
+char    *strcpy(char *destination, char *source)
 {
     int i;
 
@@ -45,7 +56,7 @@ char *strcpy(char *destination, char *source)
     return (destination);    
 }
 
-int strcmp(char *s1, char *s2)
+int strcmp(const char *s1, const char *s2)
 {
 	int i = 0;
 	while (s1[i] && (s1[i] == s2[i]))

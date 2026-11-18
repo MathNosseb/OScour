@@ -43,18 +43,6 @@ void afficher_liste(struct Node *list){
         char value_text[sizeof(tete->value)];
         itoa(*(uint32_t *)tete->value, value_text);
         kprint(value_text); kprint("\n");
-        /*
-        char tete_text[sizeof(struct Node)];
-        itoa((uint32_t)tete, tete_text);
-        kprint(tete_text); kprint("\n");
-
-        char addrNext_text[sizeof(struct Node)];
-        itoa((uint32_t)tete->addrNext, addrNext_text);
-        kprint(addrNext_text); kprint("\n");
-
-        char addrPrecedent_text[sizeof(struct Node)];
-        itoa((uint32_t)tete->addrPrecedent, addrPrecedent_text);
-        kprint(addrPrecedent_text); kprint("\n");*/
         tete = tete->addrNext;
     }
     

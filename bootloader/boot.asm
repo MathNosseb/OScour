@@ -115,12 +115,11 @@ load_kernel:
     cli ; desactivation des iterruptions 
 
 
-    lgdt [gdt_descriptor]                  ; Charge la GDT
+    lgdt [gdt_descriptor]                  ; charger la gtd
 
-    ;--- Passer en mode protégé ---
     ;en gros pour passer en mode protégé, il faut activer le bit 1 du registre CR0
     mov eax, cr0
-    or eax, 0x1                            ; Activer le mode protégé
+    or eax, 0x1                            ; ativer le mode protégé
     mov cr0, eax
     jmp 0x08:.32bits
 

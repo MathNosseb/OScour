@@ -1,95 +1,25 @@
 #include "output/vga.h"
-#include "sys/struct.h"
-#include "sys/string.h"
-#include "sys/hex.h"
-#include "input/keyboard.h"
-#include "app/shell.h"
 #include "mem/mem.h"
-#include "sys/list.h"
-#include "disque/disk.h"
+#include "app/shell.h"
+#include "app/banner.h"
 
-void put_fonctions();
-
-__attribute__((section(".text.entry")))
-void _start() {
-    //affichage des infos de l OS
-    load_art();
-    analyse_mem();//place le debut de la heap
-    //declaration des variables pour contenir les valeurs en texte
-    char secteurs[1];
-    char stack[7];
-    //chargement depuis la stack -> ecris par le compilateur
-    int nbr_secteur = *(int *)0x500; //nombre de secteurs chargé
-    //calcul de la stack disponible connaissant stack size, kernel size et l emplacement
-    uint32_t kernel_size = nbr_secteur * 512;
-    uint32_t emplacement = kernel_size + 0x1000;
-    uint32_t stack_size = 0x80000 - emplacement;
-    //passage des nombres en texte
-    itoa(nbr_secteur,secteurs);
-    itoa(stack_size, stack);
-    //affichage des secteurs chargés et de la quantité de stack dispo
-    kprint_color(secteurs, CYAN_ON_BLACK); kprint_color(" secteurs, ", CYAN_ON_BLACK); 
-    kprint_color(stack, CYAN_ON_BLACK); kprint_color(" Octets de stack dispo", CYAN_ON_BLACK); 
-    
-    put_fonctions();
-
-    //premier affichage
-    kprint_color("\nroot@local:", GREEN_ON_BLACK);
-
-    char **historic = allocate(10);//on sauvegarde les 10 dernieres commandes
-    uint8_t historic_cursor = 0;
-
-    while (1) {
-        //OUTPUT
-        update_cursor();
-        
-        //INPUT + COMMAND
-        if (detect_buffer())
-        {
-            //recuperation du scan code
-            uint8_t scancode = get_scancode();
-            if (scancode != 0xFF)
-            {   
-                //si c'est une touche entrée
-                if (scancode == 0x1C)
-                {
-                    //on detecte et execute la variable écrite
-                    detect_command();
-                    historic[historic_cursor] = allocate(strlen(get_command()));
-
-                    strcpy(historic[historic_cursor], get_command());
-                    if (historic_cursor < 10)
-                        historic_cursor++;
-                    //réaffichage de l utilisateur
-                    kprint_color("root@local:", GREEN_ON_BLACK);
-                }
-                //detection touche up
-                if (scancode == 0x48)
-                {
-                    int pos = get_cursor();
-                    if (historic_cursor > 0)
-                    {
-                        set_cursor(pos);
-                        historic_cursor--;
-                        clear_buffer(get_command(), 256);
-                        strcpy(get_command(), historic[historic_cursor]);
-                        kprint(historic[historic_cursor]);
-                    }
-                    
-                }
-                //affichage du texte ecris
-                kprint(scanCodeToChar(scancode));
-            }
-            
-        }        
-    }
-}
+#define FUNCTIONS_TABLE 0x504
+#define SECTORS_NUMBER 0x500
 
 /// @brief met les adresses des fonctions systèmes en mémoire
-void put_fonctions()
+static void put_fonctions(void)
 {
-    //on met l'adresse de la fonction kprint dans la memoire
-    //permet aux programmes externes de l utiliser
-    void **table = (void **)0x504;
-    *table = (void *)kprint;
+	void    **table;
+
+	table = (void **)FUNCTIONS_TABLE;
+	*table = (void *)kprint;
+}
+
+__attribute__((section(".text.entry")))
+void	_start(void)
+{
+    load_art();
+    init_memory_info();
+    put_fonctions();
+    shell_loop();
 }

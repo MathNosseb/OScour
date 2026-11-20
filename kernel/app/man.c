@@ -38,13 +38,6 @@ void    system_functions_descriptions(int argc, char **argv)
         }else if(strcmp("monitor", argv[1]) == 0)
         {
             kprint("affiche les ressources de l'ordinateur\n");
-        }else if(strcmp("load", argv[1]) == 0)
-        {
-            kprint("charge depuis le primary disque dans la heap\n");
-            kprint("1er parametre: adresse sur le disque\n");
-            kprint("2eme parametre: taille de la donnee en octet\n");
-            kprint("affiche l'adresse dansizes la heap du debut de la donnee\n");
-            kprint("affiche en hexadecimal les donnees stockes\n");
         }else if(strcmp("run", argv[1]) == 0)
         {
             kprint("lance un programme qui se trouve dans la heap\n");
@@ -73,9 +66,8 @@ void    system_functions_descriptions(int argc, char **argv)
         kprint("free -> libere de la memoire\n");
         kprint("dump -> affiche le contenu de la memoire\n");
         kprint("monitor -> affiche les ressources\n");
-        kprint("load -> charge depuis le primary disque dans la heap\n");
         kprint("run -> lance un programme situe dans la ram\n");
         kprint("ata -> lit un disque ou charge un disque en memoire\n");
-        kprint("shutdown -> arret de l'ordinateur\n");
+        kprint("shutdown -> arret de l'ordinateur");
     }
 }

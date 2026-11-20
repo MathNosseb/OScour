@@ -1,14 +1,15 @@
 CC = gcc
 ASM = nasm
 SOURCES = $(shell find . -name "*.c")
-OBJS = $(SOURCES:.c=.o)
+OBJS = $(addprefix Binaries/, $(notdir $(SOURCES:.c=.o)))
 CFLAGS = -m32 -ffreestanding -fno-pie -nostdlib -O0
 CFLAGS += -Wall -Wextra -Wno-builtin-declaration-mismatch
+RAM = 1025K
+vpath %.c $(sort $(dir $(SOURCES)))
 
 all : compile
 	
 compile :
-	mkdir -p Binaries
 	$(MAKE) $(OBJS)
 	$(MAKE) programs
 	$(MAKE) link
@@ -32,10 +33,13 @@ k_binary :
 	objcopy -O binary Binaries/kernel.elf Binaries/kernel.bin
 
 run :
-	qemu-system-x86_64 -enable-kvm -cpu host -m 1025K -monitor stdio -drive format=raw,file=Binaries/os.bin -drive format=raw,file=disk.bin,if=ide
+	qemu-system-x86_64 -enable-kvm -cpu host -m $(RAM) -monitor stdio -drive format=raw,file=Binaries/os.bin -drive format=raw,file=disk.bin,if=ide
 
-%o : %c
+Binaries/%.o : %.c | Binaries
 	$(CC) $(CFLAGS) -c $< -o $@
+
+Binaries :
+	mkdir -p Binaries
 
 clean :
 	rm -f $(shell find . -name "*.o")
@@ -43,5 +47,4 @@ clean :
 fclean : clean
 	rm -f Binaries/*
 
-
-
+re : fclean all

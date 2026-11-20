@@ -31,15 +31,16 @@ void reverse_string(char *str)
     str[size] = '\0';
 }
 
-void    memset(void *destination, char data, unsigned int size)
+void    *memset(void *p, int data, unsigned int size)
 {
     unsigned int    i;
-    char            *dest;
+    unsigned char   *dest;
 
     i = 0;
-    dest = (char *)destination;
+    dest = (unsigned char *)p;
     while (i < size)
         dest[i++] = data;
+    return (p);
 }
 
 char    *strcpy(char *destination, char *source)
@@ -87,7 +88,7 @@ char    *itoa(int nbr, char *str)
     return (str);
 }
 
-int ft_atoi(char *str)
+int atoi(char *str)
 {
 	int	nbr;
 	int	negative;

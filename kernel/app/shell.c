@@ -1,11 +1,4 @@
 #include "shell.h"
-#include "../mem/mem.h"
-#include "../sys/hex.h"
-#include "../sys/struct.h"
-#include "../disque/disk.h"
-#include "man.h"
-#include "programs.h"
-#include "banner.h"
 
 void    shell_loop(void)
 {
@@ -97,7 +90,7 @@ static void    detect_command(char *command)
             return;
         }
         //on aloue la ram a la valeur de argv[1]
-        int ram = ft_atoi(argv[1]);
+        int ram = atoi(argv[1]);
         allocate(ram);
         kprint("\ndone");
     }
@@ -130,17 +123,6 @@ static void    detect_command(char *command)
         kprint("heap deployment: "); kput_number(heap_total_mem);kprint(" Octets");kprint("\n");
         kput_number(tot); kprint("Ko / "); kput_number(total_mem); kprint("Ko\n");
     }
-    else if (strcmp("load", argv[0]) == 0)
-    {
-        if (argc < 3)
-        {
-            free(argv); 
-            return;
-        } 
-        //recuperer l adresse
-        kprint("\n");
-        load_program((uint32_t *)hex_to_int(argv[1]), ft_atoi(argv[2]));
-    }
     else if (strcmp("run", argv[0]) == 0)
     {
         if (argc < 2)
@@ -161,9 +143,9 @@ static void    detect_command(char *command)
         } 
 
         kprint("\n");
-        int disk_num = ft_atoi(argv[2]);
-        uint32_t lba = ft_atoi(argv[3]);
-        int secteur_num = ft_atoi(argv[4]);
+        int disk_num = atoi(argv[2]);
+        uint32_t lba = atoi(argv[3]);
+        int secteur_num = atoi(argv[4]);
 
         if(strcmp("read", argv[1]) == 0)
             read_ata(disk_num, lba, secteur_num);

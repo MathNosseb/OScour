@@ -6,8 +6,17 @@
 uint32_t actual_adr = 0;
 uint32_t heap_start = 0;
 uint32_t heap_max = 0;
-struct heap *precend_heap;
+struct heap *precend_heap = 0;
 
+void    KERNEL_PANIC(const char *s)
+{
+    kernel_panic_art();
+    kprint_color("KERNEL PANIC", RED_ON_BLACK);
+    kprint_color(s, RED_ON_BLACK);
+    kprint("\n");
+    while (1)
+        __asm__ volatile ("hlt");
+}
 
 void	init_memory_info(void)
 {
@@ -41,9 +50,14 @@ uint32_t	get_stack_ram_usage()
 
 int	get_heap_ram_usage()
 {
+    struct heap *header;
     int used = 0;
-    struct heap *header = (struct heap *)heap_start;
-    while (header->flag != 0)
+
+    if (actual_adr != heap_start)
+        header = (struct heap *)heap_start;
+    else
+        header = 0;
+    while (header && header->flag != 0)
     {  
         if (header->free == 1) used += header->size;
         header = (struct heap *)header->suivant;
@@ -71,7 +85,12 @@ uint32_t get_mem_usage()
 
 uint32_t get_heap_ram_usage_and_non_use()
 {
-    struct heap *header = (struct heap *)heap_start;
+    struct heap *header;
+
+    if (actual_adr != heap_start)
+        header = (struct heap *)heap_start;
+    else
+        header = 0;
     while (header->flag != 0)
     {  
         header = (struct heap *)header->suivant;
@@ -83,101 +102,26 @@ uint32_t get_heap_ram_usage_and_non_use()
 
 void free(void *adr)
 {
+    if (!adr) return ;
+    if ((uint32_t)adr < heap_start + sizeof(struct heap))
+        KERNEL_PANIC("FREE hors tas");
     struct heap *h = (struct heap *)((uint32_t)adr - sizeof(struct heap));
+    if (h->canarie != 0xFFFFFFFF) KERNEL_PANIC("FREE canarie");
+    if (h->free == 0) KERNEL_PANIC("FREE double free");
     h->free = 0;
-}
-
-uint64_t get_total_ram()
-{
-    struct e820_entry *entries = (struct e820_entry *)0x8004;
-    uint16_t count = *(uint16_t *)0x8000;
-
-    uint64_t total = 0;
-
-    for (int i = 0; i < count; i++)
-    {
-        total += entries[i].length;
-    }
-
-    return total;
-}
-
-void analyse_mem()
-{
-    struct e820_entry *entries = (struct e820_entry *)0x8004;
-    uint16_t count = *(uint16_t *)0x8000;
-    struct e820_entry biggest;
-    biggest.type = 2;
-    biggest.length = 0;
-
-    uint32_t tot = 0;
-    for (int i = 0; i < count; i++)
-    {
-        if (entries[i].base != 0 && entries[i].type == 1 && entries[i].length > biggest.length)
-            biggest = entries[i];
-        char base[16];
-        char size[16];
-        char type[16];
-        int_to_hex(entries[i].base, base);
-        itoa(entries[i].length/1024, size);
-        itoa(entries[i].type, type);
-        kprint(base);
-        kprint(" ");
-        kprint(size);
-        kprint("Ko ");
-        kprint(type);
-        kprint("\n");
-        tot += entries[i].length;
-    }
-
-    if (biggest.type == 2)
-        kprint("KERNEL PANIC pas assez de ram\n");
-    else
-    {
-        actual_adr = biggest.base;
-        heap_start = biggest.base;
-        heap_max = biggest.length;
-        char tot_size[16];
-        itoa(tot/1024, tot_size);
-        kprint(tot_size);
-        kprint("Ko de ram tot\nusable :\n");    
-        char base[16];
-        char size[16];
-        char type[16];
-        int_to_hex(biggest.base/1024/1024, base);
-        itoa(biggest.length/1024, size);
-        itoa(biggest.type, type);
-        kprint(base);
-        kprint("Mo ");
-        kprint(size);
-        kprint("Ko ");
-        kprint(type);
-        kprint("\n");
-    }
-}
-
-uint32_t get_max_heap_size()
-{
-    struct e820_entry *entries = (struct e820_entry *)0x8004;
-    uint16_t count = *(uint16_t *)0x8000;
-    struct e820_entry heap;
-    heap.length = 0;
-
-    for (int i = 0; i < count; i++)
-    {
-        if (entries[i].base != 0 && entries[i].type == 1 && entries[i].length > heap.length)
-            heap = entries[i];
-    }
-
-    return (heap.length);
 }
 
 void dump_heap()
 {
+    struct heap *h;
+
     kprint("\n");
-    struct heap *h = (struct heap *)heap_start;
+    if (actual_adr != heap_start)
+        h = (struct heap *)heap_start;
+    else
+        h = 0;
     int index = 0;
-    while (1)
+    while (h)
     {
         char number[5]; itoa(index, number);
         char flag[5]; itoa(h->flag, flag);
@@ -288,22 +232,28 @@ on peut assigner sa valeur
 /// @brief alloue une quantité de ram dans la heap
 /// @param size la quantité en octets a allouer
 /// @return retourne un pointeur de l adresse qui est aloué
-void *allocate(int size)
+void    *allocate(int size)
 {
     //on va essayer de trouver un bloc libre qui a une taille bien libre
-    int find = 0;
-    struct heap *finder = (struct heap *)heap_start;
+    struct heap *finder;
+    int find;
+
+    if (size < 0)
+        KERNEL_PANIC("ALLOCATION trop petite");
+
+    find = 0;
+    if (actual_adr != heap_start)
+        finder = (struct heap *)heap_start;
+    else
+        finder = 0;
     while (finder)
     {
-        if (finder->canarie != 0xFFFFFFFF && finder->size != 0)
-        {
-            kprint("Kernel Panic finder");
-        }
-
+        if (finder->canarie != 0xFFFFFFFF)
+            KERNEL_PANIC("finder canarie");
         if ((struct heap *)finder->suivant)
         {
             if (((struct heap *)finder->suivant)->canarie != 0xFFFFFFFF)
-                kprint("Kernel Panic suivant\n");
+                KERNEL_PANIC("canarie suivant");
         }
         if (finder->free == 0 && finder->size >= size)
         {
@@ -324,7 +274,11 @@ void *allocate(int size)
 
         //determiner si on peut creer un sous bloc pour eviter de creer un espace orphelin
         //espace minimal requis -> taille header + 1 octet
-        if (finder->flag == 0) return content;
+        if (finder->flag == 0)
+        {
+            actual_adr = finder->end;
+            return (content);
+        }
         if (((struct heap *)finder->suivant)->start - finder->end >= sizeof(struct heap) + 1)
         {
             //on créer un espace
@@ -345,12 +299,13 @@ void *allocate(int size)
             ((struct heap *)new_finder->suivant)->precedent = new_finder->start;
             
         }
-
         return content;
     }
-
-    
-    struct heap *bloc = (struct heap *)actual_adr;
+    if ((actual_adr - heap_start) + sizeof(struct heap) + size > heap_max)
+        KERNEL_PANIC("Memoire pleine");
+    struct heap *bloc = (struct heap *)actual_adr;\
+    bloc->suivant = 0;
+    bloc->precedent = 0;
     bloc->canarie = 0xFFFFFFFF;
     bloc->start = actual_adr;
     bloc->end = bloc->start + size + sizeof(struct heap);

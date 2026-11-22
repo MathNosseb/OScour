@@ -25,21 +25,17 @@ void print_at(int x, int y, char *text)
 
 void    write(char *s1, int len)
 {
-    char    *s2;
+    char    s2[2];
     int     i;
 
     i = 0;
-    s2 = allocate(len + 1);
-    if (!s2)
-        return;
+    s2[1] = '\0';
     while (i < len)
     {
-        s2[i] = s1[i];
+        s2[0] = s1[i];
+        kprint_color(s2, WHITE_ON_BLACK);
         i++;
     }
-    s2[i] = '\0';
-    kprint_color(s2, WHITE_ON_BLACK);
-    free(s2);
 }
 
 void    kput_number(int nb)

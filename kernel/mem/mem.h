@@ -5,17 +5,16 @@
 
 #define FUNCTIONS_TABLE 0x504
 #define SECTORS_NUMBER 0x500
+#define STACK_EMPLACEMENT 0x80000
 
 struct heap
 {
     uint32_t canarie;
     int size;//taille en octet de la zone
-    uint32_t start;//adresse de debut
     uint32_t end;//adresse de fin
     int free;//0 -> libre, 1 -> occupé
-    uint32_t precedent;
-    
-    uint32_t suivant;
+    struct heap *precedent;
+    struct heap *suivant;
     int flag;//flag si suivant est present
 };
 
@@ -27,7 +26,7 @@ extern  struct heap *precend_heap;
 void        KERNEL_PANIC(const char *s);
 void        init_memory_info(void);
 void        *allocate(int);
-uint32_t    get_stack_ram_usage();
+uint32_t    get_stack_usage();
 uint32_t    get_heap_ram_usage_and_non_use();
 void        heap_stress_test();
 int         get_heap_ram_usage();

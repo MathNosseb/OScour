@@ -109,9 +109,9 @@ static void    detect_command(char *command)
     {
         //affiche les ressources de l'ordinateur
         //les ressources
-        uint64_t total_mem = (get_total_ram() / 1024);
+        uint64_t total_mem = (get_total_ram_size() / 1024);
         int heap_mem = get_heap_ram_usage();
-        int stack_mem = get_stack_ram_usage();
+        int stack_mem = get_stack_usage();
         int heap_total_mem = get_heap_ram_usage_and_non_use();
         uint32_t tot = get_mem_usage() / 1024;
 

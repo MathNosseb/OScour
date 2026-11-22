@@ -1,3 +1,4 @@
+#pragma once
 #include "../sys/struct.h"
 #include "../output/vga.h"
 #include "../sys/string.h"
@@ -24,6 +25,6 @@ struct e820_entry
 //entre chaqun des elements et comme je le recupere depuis le bios c est la taille
 //litteral alors il ne faut vrm pas la changer
 
-uint64_t    get_total_ram(void);
-void        analyse_mem(void);
-uint32_t    get_max_heap_size(void);
+uint64_t    get_total_ram_size(void);
+void        set_e820_entries(void);
+uint32_t    get_heap_size(void);

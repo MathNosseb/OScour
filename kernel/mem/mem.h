@@ -1,7 +1,12 @@
 #pragma once
 #include "../sys/struct.h"
 #include "../app/banner.h"
+#include "../output/vga.h"
+#include "../sys/string.h"
+#include "../sys/hex.h"
 #include "e820.h"
+#include "allocator.h"
+#include "mem_info.h"
 
 #define FUNCTIONS_TABLE 0x504
 #define SECTORS_NUMBER 0x500
@@ -25,13 +30,6 @@ extern  struct heap *precend_heap;
 
 void        KERNEL_PANIC(const char *s);
 void        init_memory_info(void);
-void        *allocate(int);
-uint32_t    get_stack_usage();
-uint32_t    get_heap_ram_usage_and_non_use();
 void        heap_stress_test();
-int         get_heap_ram_usage();
-void        free(void *adr);
 void        dump_heap();
-void        init_memory();
-uint32_t    get_max_heap_size();
-uint32_t    get_mem_usage();
+void		mem_coalition(void);

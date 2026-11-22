@@ -49,9 +49,18 @@ void    shell_loop(void)
 
 static void    detect_command(char *command)
 {
-    int argc;
-    char **argv = split_words(command, &argc);
+    int     argc;
+    char    **argv;
 
+    //commandes qui ont besoin de ne pas avoir de
+    //mouvement de memoire pour avoir le bon resultat
+    if (strcmp("dump", command) == 0)
+    {        
+        dump_heap();
+        kprint("\n");
+        return;
+    }
+    argv = split_words(command, &argc);
     if (argc == 0)
         kprint("\n");
     else if (strcmp("man", argv[0]) == 0)
@@ -103,8 +112,7 @@ static void    detect_command(char *command)
         } 
         free((uint32_t *)hex_to_int(argv[1]));
     }
-    else if (strcmp("dump", argv[0]) == 0)
-        dump_heap();
+
     else if (strcmp("monitor", argv[0]) == 0)
     {
         //affiche les ressources de l'ordinateur
@@ -121,7 +129,7 @@ static void    detect_command(char *command)
         kprint("heap usage: "); kput_number(heap_mem);kprint(" Octets");kprint("\n");
         kprint("stack usage: "); kput_number(stack_mem);kprint(" Octets");kprint("\n");
         kprint("heap deployment: "); kput_number(heap_total_mem);kprint(" Octets");kprint("\n");
-        kput_number(tot); kprint("Ko / "); kput_number(total_mem); kprint("Ko\n");
+        kput_number(tot); kprint("Ko / "); kput_number(total_mem); kprint("Ko");
     }
     else if (strcmp("run", argv[0]) == 0)
     {

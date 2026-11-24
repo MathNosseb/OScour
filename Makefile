@@ -6,7 +6,7 @@ OBJS = $(addprefix Binaries/, $(notdir $(SOURCES:.c=.o)))
 ASM_OBJS = $(addprefix Binaries/, $(notdir $(ASM_SOURCES:.asm=.o)))
 CFLAGS = -m32 -ffreestanding -fno-pie -nostdlib -O0
 CFLAGS += -Wall -Wextra -Wno-builtin-declaration-mismatch
-RAM = 1025K
+RAM = 4M
 vpath %.c $(sort $(dir $(SOURCES)))
 vpath %.asm $(sort $(dir $(ASM_SOURCES)))
 

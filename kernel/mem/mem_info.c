@@ -10,10 +10,10 @@ uint32_t    get_stack_usage(void)
 }
 
 /// @brief retourne la quantité de ram dans la heap utilisé
-int	get_heap_ram_usage(void)
+uint32_t	get_heap_ram_usage(void)
 {
     struct heap	*header;
-    int			used;
+    uint32_t	used;
 
 	used = 0;
     if (actual_adr != heap_start)

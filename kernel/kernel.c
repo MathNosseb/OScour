@@ -20,6 +20,7 @@ __attribute__((section(".text.entry")))
 void	_start(void)
 {
 	load_art();
+	init_entry();
 	init_memory_info();
 	put_fonctions();
 	shell_loop();

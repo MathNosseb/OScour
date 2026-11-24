@@ -73,11 +73,11 @@ void	init_memory_info(void)
 	set_e820_entries();
 	nbr_secteur = *(int *)SECTORS_NUMBER;
     kernel_size = nbr_secteur * 512;
-    emplacement = kernel_size + 0x1000;
+    emplacement = kernel_size + KERNEL_EMPLACEMENT;
     stack_size = STACK_EMPLACEMENT - emplacement;
     itoa(nbr_secteur,secteurs);
     itoa(stack_size, stack);
-    kprint_color(secteurs, CYAN_ON_BLACK); kprint_color(" secteurs, ", CYAN_ON_BLACK); 
+    kprint_color(secteurs, CYAN_ON_BLACK); kprint_color(" / 54(max) secteurs, ", CYAN_ON_BLACK); 
     kprint_color(stack, CYAN_ON_BLACK); kprint_color(" Octets de stack dispo", CYAN_ON_BLACK);
 }
 

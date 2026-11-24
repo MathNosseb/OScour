@@ -30,22 +30,27 @@ int	get_heap_ram_usage(void)
     
 }
 
+uint32_t    get_stack_size(void)
+{
+    uint32_t    stack_size;
+    uint32_t    kernel_size;
+    uint32_t    emplacement;
+    uint32_t    nbr_secteurs;
+
+    nbr_secteurs = *(int *)SECTORS_NUMBER;
+    kernel_size = nbr_secteurs * 512;
+    emplacement = kernel_size + KERNEL_EMPLACEMENT;
+    stack_size = STACK_EMPLACEMENT - emplacement;
+	return (stack_size);
+}
+
 /// @brief la quantité TOTAL de ram utilisé par l OS
 uint32_t	get_mem_usage(void)
 {
     uint32_t	mem;
-    uint32_t	kernel_size;
-    uint32_t	emplacement;
-
-	uint32_t	stack_size;
-    int			nbr_secteur;
     
     mem = get_total_ram_size();
-    nbr_secteur = *(int *)SECTORS_NUMBER;
-    kernel_size = nbr_secteur * 512;
-    emplacement = kernel_size + 0x1000;
-    stack_size = STACK_EMPLACEMENT - emplacement;
-    mem -= stack_size;
+    mem -= get_stack_size();
     mem -= get_heap_size();
     mem += get_stack_usage();
     mem += actual_adr - heap_start;
@@ -65,7 +70,6 @@ uint32_t get_heap_ram_usage_and_non_use()
     {  
         header = header->suivant;
     }
-    uint32_t size = (uint32_t)((uint32_t)header+sizeof(struct heap));
-    return size - heap_start;
+    return actual_adr - heap_start;
     
 }

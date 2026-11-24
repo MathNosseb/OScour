@@ -8,7 +8,7 @@ void    load_art(void)
 	kprint(" | |  | |\\___ \\ / __/ _ \\| | | | '__| \\ \\ / // / \n");
 	kprint(" | |__| |____) | (_| (_) | |_| | |     \\ V // /_ \n");
 	kprint("  \\____/|_____/ \\___\\___/ \\__,_|_|      \\_/|____|\n");
-	kprint_color("Oscour made by mathnosseb v2.1.1\n", CYAN_ON_BLACK);
+	kprint_color("Oscour made by mathnosseb v2.1.2\n", CYAN_ON_BLACK);
 }
 
 void	kernel_panic_art(void)

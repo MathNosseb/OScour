@@ -126,9 +126,9 @@ static void    detect_command(char *command)
         //print
         kprint("\n");
         kprint("ressources ram: "); kput_number(total_mem);kprint(" Ko");kprint("\n");
-        kprint("heap usage: "); kput_number(heap_mem);kprint(" Octets");kprint("\n");
-        kprint("stack usage: "); kput_number(stack_mem);kprint(" Octets");kprint("\n");
-        kprint("heap deployment: "); kput_number(heap_total_mem);kprint(" Octets");kprint("\n");
+        kprint("heap usage: "); kput_number(heap_mem);kprint(" Octets");kprint(" / ");kput_number(heap_max); kprint(" Octets\n");
+        kprint("stack usage: "); kput_number(stack_mem);kprint(" Octets");kprint(" / ");kput_number(get_stack_size() / 1024);kprint(" Ko\n");
+        kprint("heap deployment: "); kput_number(heap_total_mem);kprint(" Octets");kprint(" / ");kput_number(heap_max); kprint(" Octets\n");
         kput_number(tot); kprint("Ko / "); kput_number(total_mem); kprint("Ko");
     }
     else if (strcmp("run", argv[0]) == 0)

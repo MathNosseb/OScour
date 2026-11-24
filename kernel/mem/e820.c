@@ -47,10 +47,12 @@ void	set_e820_entries(void)
 		kput_number(entries[i].length/1024);
 		kprint("Ko ");
 		kput_number(entries[i].type);
+		
 		if (entries[i].type == 1 && i != 0)
 			kprint_color(" usable\n", GREEN_ON_BLACK);
 		else
-			kprint_color(" reserved\n", RED_ON_BLACK);
+			kprint_color(" reserved\n", RED_ON_BLACK);\
+		
 		tot += entries[i++].length;
 	}
     if (biggest.type == 2)

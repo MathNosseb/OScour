@@ -15,13 +15,13 @@
 
 struct heap
 {
-    uint32_t canarie;
-    int size;//taille en octet de la zone
-    uint32_t end;//adresse de fin
-    int free;//0 -> libre, 1 -> occupé
-    struct heap *precedent;
-    struct heap *suivant;
-    int flag;//flag si suivant est present
+	uint32_t canarie;
+	int size;//taille en octet de la zone
+	uint32_t end;//adresse de fin
+	int free;//0 -> libre, 1 -> occupé
+	struct heap *precedent;
+	struct heap *suivant;
+	int flag;//flag si suivant est present
 };
 
 extern  uint32_t    actual_adr;

@@ -23,7 +23,7 @@ uint64_t	get_total_ram_size(void)
 /// @brief choisis l entrées la plus grosse
 void	set_e820_entries(void)
 {
-    struct e820_entry	*entries;
+	struct e820_entry	*entries;
 	struct e820_entry	biggest;
 	uint16_t			count;
 	uint32_t			tot;
@@ -31,10 +31,10 @@ void	set_e820_entries(void)
 	char				base[16];
 	
 	entries = (struct e820_entry *)ENTRIE_START;
-    count = *(uint16_t *)ENTRIE_COUNT;
-    biggest.type = 2;
-    biggest.length = 0;
-    tot = 0;
+	count = *(uint16_t *)ENTRIE_COUNT;
+	biggest.type = 2;
+	biggest.length = 0;
+	tot = 0;
 	i = 0;
 	while (i < count)
 	{
@@ -55,29 +55,29 @@ void	set_e820_entries(void)
 		
 		tot += entries[i++].length;
 	}
-    if (biggest.type == 2)
-        KERNEL_PANIC("pas assez de ram");
-    else
-    {
-        actual_adr = biggest.base;
-        heap_start = biggest.base;
-        heap_max = biggest.length;
-        kput_number(tot/1024);
-        kprint("Ko de ram total\n");
-    }
+	if (biggest.type == 2)
+	    KERNEL_PANIC("pas assez de ram");
+	else
+	{
+	    actual_adr = biggest.base;
+	    heap_start = biggest.base;
+	    heap_max = biggest.length;
+	    kput_number(tot/1024);
+	    kprint("Ko de ram total\n");
+	}
 }
 
 /// @brief retourne la taille max de la heap
 uint32_t	get_heap_size(void)
 {
-    struct e820_entry	*entries;
+	struct e820_entry	*entries;
 	struct e820_entry	heap;
 	uint16_t			count;
 	int					i;
 	
 	entries = (struct e820_entry *)ENTRIE_START;
-    count = *(uint16_t *)ENTRIE_COUNT;
-    heap.length = 0;
+	count = *(uint16_t *)ENTRIE_COUNT;
+	heap.length = 0;
 	i = 0;
 	while (i < count)
 	{
@@ -86,5 +86,5 @@ uint32_t	get_heap_size(void)
 			heap = entries[i];
 		i++;
 	}
-    return (heap.length);
+	return (heap.length);
 }

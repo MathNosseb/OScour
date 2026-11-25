@@ -8,10 +8,10 @@ void	init_entry(void)
 {
 	int                 i;
 
-    i = 0;
-    while (i < 256)
-    {
-    	idt[i].selector = 0x08;
+	i = 0;
+	while (i < 256)
+	{
+		idt[i].selector = 0x08;
 		idt[i].reserved = 0;
 		idt[i].attributs = 0b10001110;
 		i++;

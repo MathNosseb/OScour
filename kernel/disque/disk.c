@@ -24,17 +24,59 @@
 /// @param sec_number le nombre de secteur a lire
 void read_ata(int disk_num, uint32_t lba, int sec_number)
 {
-    uint8_t *adr = (uint8_t *)load_ata(disk_num, lba, sec_number);
+	uint8_t *adr = (uint8_t *)load_ata(disk_num, lba, sec_number);
 
-    for (int value = 0; value < sec_number * 512; value++)
-    {
-        char value_text[3];
-        int_to_hex((uint8_t)adr[value], value_text);
-        kprint(value_text); kprint(" ");
-    }
+	for (int value = 0; value < sec_number * 512; value++)
+	{
+	    char value_text[3];
+	    int_to_hex((uint8_t)adr[value], value_text);
+	    kprint(value_text); kprint(" ");
+	}
 
-    free(adr);
+	free(adr);
 
+}
+
+void	write_ata(int disk_num, uint32_t lba, uint8_t *data, uint32_t size)
+{
+	uint8_t		last;
+	uint32_t	i;
+	uint16_t	word;
+
+	while (inb(0x1F7) & 0x80);
+	last = 0;
+	last |= (1 << 7);
+	last |= (1 << 6);
+	last |= (1 << 5);
+	last |= (disk_num << 4);//slave
+	last |= ((lba >> 24) & 0x0F);
+	outb(0x1F6, last);
+	outb(0x1F2, (size + 511) / 512);
+	outb(0x1F3, (uint8_t)lba);
+	outb(0x1F4, (uint8_t)(lba>>8));
+	outb(0x1F5, (uint8_t)(lba>>16));
+	outb(0x1F7, 0x30); //ecrire
+	while (!(inb(0x1F7) & 0x08));//attendre que ca soit pret
+	i = 0;
+	while (i < size - 1)
+	{
+		word = data[i] | (data[i + 1] << 8);
+		outw(0x1F0, word);
+		i+=2;
+	}
+	if (size % 2 == 1)
+	{
+		word = data[i] | (0x00 << 8);
+		outw(0x1F0, word);
+		i++;
+	}
+	while (i < ((size + 511) / 512) * 512)
+	{
+		outw(0x1F0, 0);
+		i += 2;
+	}
+	outb(0x1F7, 0xE7); //flush
+	while (inb(0x1F7) & 0x80);
 }
 
 /// @brief charge le contenu du disque en mémoire (heap)
@@ -44,36 +86,34 @@ void read_ata(int disk_num, uint32_t lba, int sec_number)
 /// @return l'adresse du contenu du disque dans la ram
 uint32_t *load_ata(int disk_num, uint32_t lba, int sec_number)
 {
-    while (inb(0x1F7) & 0x80);  // attendre BSY=0
+	while (inb(0x1F7) & 0x80);  // attendre BSY=0
+	uint8_t last = 0;
 
-    outb(0x1F2, sec_number); //lire sec_number de secteurs
+	last |= (1 << 7);
+	last |= (1 << 6);
+	last |= (1 << 5);
+	last |= (disk_num << 4);//slave
 
-    outb(0x1F3, (uint8_t)lba);//debut fichier
-    outb(0x1F4, (uint8_t)(lba >> 8));//pas d offset
-    outb(0x1F5, (uint8_t)(lba >> 16));//pas d offset
+	last |= ((lba >> 24) & 0x0F);
 
-    uint8_t last = 0;
+	outb(0x1F6, last);
 
-    last |= (1 << 7);
-    last |= (1 << 6);
-    last |= (1 << 5);
-    last |= (disk_num << 4);//slave
+	outb(0x1F2, sec_number); //lire sec_number de secteurs
 
-    last |= ((lba >> 24) & 0x0F);
+	outb(0x1F3, (uint8_t)lba);//debut fichier
+	outb(0x1F4, (uint8_t)(lba >> 8));//pas d offset
+	outb(0x1F5, (uint8_t)(lba >> 16));//pas d offset
+	outb(0x1F7, 0x20);  // commande READ SECTORS
 
-    outb(0x1F6, last);
-    outb(0x1F7, 0x20);  // commande READ SECTORS
+	// Attendre DRQ=1 (données prêtes)
+	while (!(inb(0x1F7) & 0x08));
 
-    // Attendre DRQ=1 (données prêtes)
-    while (!(inb(0x1F7) & 0x08));
+	uint8_t *adr = allocate(sec_number * 512);
 
-    uint8_t *adr = allocate(sec_number * 512);
-
-    for (int i = 0; i < sec_number * 256; i++) {
-        uint16_t val = inw(0x1F0);
-        adr[i * 2]     = (char)(val & 0xFF);
-        adr[i * 2 + 1] = (char)((val >> 8) & 0xFF);
-    }
-
-    return (uint32_t *)adr;
+	for (int i = 0; i < sec_number * 256; i++) {
+	    uint16_t val = inw(0x1F0);
+	    adr[i * 2]     = (char)(val & 0xFF);
+	    adr[i * 2 + 1] = (char)((val >> 8) & 0xFF);
+	}	
+	return ((uint32_t *)adr);
 }

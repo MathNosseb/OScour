@@ -9,15 +9,15 @@
 
 struct e820_entry
 {
-    uint64_t base;//Base address
-    uint64_t length;// Length of "region" (if this value is 0, ignore the entry)
-    uint32_t type;//Region "type"
-    //Type 1: Usable (normal) RAM
-    //Type 2: Reserved - unusable
-    //Type 3: ACPI reclaimable memory
-    //Type 4: ACPI NVS memory
-    //ype 5: Area containing bad memory
-    uint32_t acpi;
+	uint64_t base;//Base address
+	uint64_t length;// Length of "region" (if this value is 0, ignore the entry)
+	uint32_t type;//Region "type"
+	//Type 1: Usable (normal) RAM
+	//Type 2: Reserved - unusable
+	//Type 3: ACPI reclaimable memory
+	//Type 4: ACPI NVS memory
+	//ype 5: Area containing bad memory
+	uint32_t acpi;
 } __attribute__((packed));
 //atribute packed sert a faire en sorte que en memoire les donnees prennent
 //exactement la place demandé sans paging

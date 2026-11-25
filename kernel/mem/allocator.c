@@ -13,19 +13,19 @@ static struct heap	*find_free_bloc(int size)
 		finder = NULL;
 	while (finder)
 	{
-        if (finder->canarie != 0xFFFFFFFF)
-            KERNEL_PANIC("finder canarie");
-        if (finder->suivant)
-        {
-            if ((finder->suivant)->canarie != 0xFFFFFFFF)
-                KERNEL_PANIC("canarie suivant");
-        }
-        if (finder->free == 0 && finder->size >= size)
-        {
-            find = 1;
-            break;
-        }
-        finder = finder->suivant;
+	    if (finder->canarie != 0xFFFFFFFF)
+	        KERNEL_PANIC("finder canarie");
+	    if (finder->suivant)
+	    {
+	        if ((finder->suivant)->canarie != 0xFFFFFFFF)
+	            KERNEL_PANIC("canarie suivant");
+	    }
+	    if (finder->free == 0 && finder->size >= size)
+	    {
+	        find = 1;
+	        break;
+	    }
+	    finder = finder->suivant;
 	}
 	if (find)
 		return (finder);
@@ -76,22 +76,22 @@ static uint32_t	*create_bloc(int size)
 	uint32_t	*content;
 	
 	bloc = (struct heap *)actual_adr;
-    bloc->suivant = NULL;
-    bloc->precedent = NULL;
-    bloc->canarie = 0xFFFFFFFF;
-    bloc->end = (uint32_t)bloc + size + sizeof(struct heap);
-    bloc->size = size;
-    bloc->free = 1;
-    bloc->flag = 0;
+	bloc->suivant = NULL;
+	bloc->precedent = NULL;
+	bloc->canarie = 0xFFFFFFFF;
+	bloc->end = (uint32_t)bloc + size + sizeof(struct heap);
+	bloc->size = size;
+	bloc->free = 1;
+	bloc->flag = 0;
 	content = (uint32_t *)((uint8_t *)bloc + sizeof(struct heap));
-    if (actual_adr != heap_start)
-    {
-        precend_heap->suivant = bloc;
-        precend_heap->flag = 1;
-        bloc->precedent = precend_heap;
-    }
-    precend_heap = (struct heap *)actual_adr;
-    actual_adr = (uint32_t)content + size;
+	if (actual_adr != heap_start)
+	{
+	    precend_heap->suivant = bloc;
+	    precend_heap->flag = 1;
+	    bloc->precedent = precend_heap;
+	}
+	precend_heap = (struct heap *)actual_adr;
+	actual_adr = (uint32_t)content + size;
 	return (content);
 }
 
@@ -100,27 +100,27 @@ static uint32_t	*create_bloc(int size)
 /// @return retourne un pointeur de l adresse qui est aloué
 void    *allocate(int size)
 {
-    //on va essayer de trouver un bloc libre qui a une taille bien libre
-    struct heap *finder;
+	//on va essayer de trouver un bloc libre qui a une taille bien libre
+	struct heap *finder;
 
-    if (size < 0)
-        KERNEL_PANIC("ALLOCATION trop petite");
+	if (size < 0)
+	    KERNEL_PANIC("ALLOCATION trop petite");
 	finder = find_free_bloc(size);
-    if (finder)//si un bloc libre est trouvé
-        return (split_bloc(finder, size));
-    if ((actual_adr - heap_start) + sizeof(struct heap) + size > heap_max)
-        KERNEL_PANIC("Memoire pleine");
-    return (create_bloc(size));
+	if (finder)//si un bloc libre est trouvé
+	    return (split_bloc(finder, size));
+	if ((actual_adr - heap_start) + sizeof(struct heap) + size > heap_max)
+	    KERNEL_PANIC("Memoire pleine");
+	return (create_bloc(size));
 }
 
 void free(void *adr)
 {
-    if (!adr) return ;
-    if ((uint32_t)adr < heap_start + sizeof(struct heap))
-        KERNEL_PANIC("FREE hors tas");
-    struct heap *h = (struct heap *)((uint32_t)adr - sizeof(struct heap));
-    if (h->canarie != 0xFFFFFFFF) KERNEL_PANIC("FREE canarie");
-    if (h->free == 0) KERNEL_PANIC("FREE double free");
-    h->free = 0;
-    mem_coalition();
+	if (!adr) return ;
+	if ((uint32_t)adr < heap_start + sizeof(struct heap))
+	    KERNEL_PANIC("FREE hors tas");
+	struct heap *h = (struct heap *)((uint32_t)adr - sizeof(struct heap));
+	if (h->canarie != 0xFFFFFFFF) KERNEL_PANIC("FREE canarie");
+	if (h->free == 0) KERNEL_PANIC("FREE double free");
+	h->free = 0;
+	mem_coalition();
 }

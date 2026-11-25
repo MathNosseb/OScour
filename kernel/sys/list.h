@@ -7,10 +7,10 @@
 
 struct Node
 {
-    struct Node *addrNext;
-    struct Node *addrPrecedent;
-    void *value;
-    uint32_t size;
+	struct Node *addrNext;
+	struct Node *addrPrecedent;
+	void *value;
+	uint32_t size;
 };
 
 struct Node *create_liste();

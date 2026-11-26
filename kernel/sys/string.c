@@ -162,3 +162,17 @@ char **split_words(char *str, int *count)
 	}
 	return (words);
 }
+
+void	put_size(uint64_t size)
+{
+	int	i = 0;
+	char *dec[] = {" Octets", " Ko", " Mo", " Go", " To"};
+	
+	while (size > 1024 && i < 4)
+	{
+		size /= 1024;
+		i++;
+	}
+	kput_number(size);
+	kprint(dec[i]);
+}

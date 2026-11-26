@@ -37,6 +37,32 @@ void read_ata(int disk_num, uint32_t lba, int sec_number)
 
 }
 
+void	write_ata_at(int disk_num, uint64_t offset, uint8_t *data, uint32_t size)
+{
+	uint8_t		*sector_data;
+	uint32_t	i;
+	uint32_t	done;
+
+	done = 0;
+
+	while (done < size)
+	{
+		sector_data = load_ata(disk_num, (offset + done) / 512, 1);
+		if (!sector_data)
+			return ;
+		i = 0;
+		while (done + i < size && (offset + done )% 512 + i < 512)
+		{
+			sector_data[(offset + done) % 512 + i] = data[done + i];
+			i++;
+		}
+		write_ata(disk_num, (offset + done) / 512, sector_data, 512);
+		done += i;
+		free(sector_data);
+	}
+}
+
+
 void	write_ata(int disk_num, uint32_t lba, uint8_t *data, uint32_t size)
 {
 	uint8_t		last;
@@ -84,7 +110,7 @@ void	write_ata(int disk_num, uint32_t lba, uint8_t *data, uint32_t size)
 /// @param lba l adresse lba
 /// @param sec_number le nombre de secteur a lire
 /// @return l'adresse du contenu du disque dans la ram
-uint32_t *load_ata(int disk_num, uint32_t lba, int sec_number)
+void	*load_ata(int disk_num, uint32_t lba, int sec_number)
 {
 	while (inb(0x1F7) & 0x80);  // attendre BSY=0
 	uint8_t last = 0;
@@ -96,6 +122,11 @@ uint32_t *load_ata(int disk_num, uint32_t lba, int sec_number)
 
 	last |= ((lba >> 24) & 0x0F);
 
+	void	*adr = allocate(sec_number * 512);
+	uint8_t	*data = (uint8_t *)adr;
+	if (!adr)
+		return (NULL);
+
 	outb(0x1F6, last);
 
 	outb(0x1F2, sec_number); //lire sec_number de secteurs
@@ -105,15 +136,16 @@ uint32_t *load_ata(int disk_num, uint32_t lba, int sec_number)
 	outb(0x1F5, (uint8_t)(lba >> 16));//pas d offset
 	outb(0x1F7, 0x20);  // commande READ SECTORS
 
-	// Attendre DRQ=1 (données prêtes)
-	while (!(inb(0x1F7) & 0x08));
-
-	uint8_t *adr = allocate(sec_number * 512);
-
-	for (int i = 0; i < sec_number * 256; i++) {
-	    uint16_t val = inw(0x1F0);
-	    adr[i * 2]     = (char)(val & 0xFF);
-	    adr[i * 2 + 1] = (char)((val >> 8) & 0xFF);
-	}	
-	return ((uint32_t *)adr);
+	for (int j = 0; j < sec_number; j++)
+	{
+		while (inb(0x1F7) & 0x80);
+		while (!(inb(0x1F7) & 0x08));
+		for (int i = 0; i < 256; i++)
+		{
+	    	uint16_t val = inw(0x1F0);
+	    	data[j * 512 + i * 2]     = (char)(val & 0xFF);
+	    	data[j * 512 + i * 2 + 1] = (char)((val >> 8) & 0xFF);
+		}
+	}		
+	return (adr);
 }

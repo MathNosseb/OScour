@@ -117,7 +117,7 @@ static void    detect_command(char *command)
 	{
 		//affiche les ressources de l'ordinateur
 		//les ressources
-		uint32_t total_mem = (get_total_ram_size() / 1024);
+		uint32_t total_mem = (get_total_ram_size());
 		uint32_t heap_mem = get_heap_ram_usage();
 		uint32_t stack_mem = get_stack_usage();
 		uint32_t heap_total_mem = get_heap_ram_usage_and_non_use();
@@ -125,11 +125,11 @@ static void    detect_command(char *command)
 
 		//print
 		kprint("\n");
-		kprint("ressources ram: "); kput_number(total_mem);kprint(" Ko");kprint("\n");
-		kprint("heap usage: "); kput_number(heap_mem);kprint(" Octets");kprint(" / ");kput_number(heap_max); kprint(" Octets\n");
-		kprint("stack usage: "); kput_number(stack_mem);kprint(" Octets");kprint(" / ");kput_number(get_stack_size() / 1024);kprint(" Ko\n");
-		kprint("heap deployment: "); kput_number(heap_total_mem);kprint(" Octets");kprint(" / ");kput_number(heap_max); kprint(" Octets\n");
-		kput_number(tot); kprint("Ko / "); kput_number(total_mem); kprint("Ko");
+		kprint("ressources ram: "); put_size(total_mem);kprint("\n");
+		kprint("heap usage: "); put_size(heap_mem);kprint(" / ");put_size(heap_max); kprint("\n");
+		kprint("stack usage: "); put_size(stack_mem);kprint(" / ");put_size(get_stack_size());kprint("\n");
+		kprint("heap deployment: ");put_size(heap_total_mem);kprint(" / ");put_size(heap_max); kprint("\n");
+		put_size(tot); kprint(" / "); put_size(total_mem);
 	}
 	else if (strcmp("run", argv[0]) == 0)
 	{
@@ -159,20 +159,20 @@ static void    detect_command(char *command)
 			read_ata(disk_num, lba, secteur_num);
 		else if (strcmp("load", argv[1]) == 0)
 			load_ata(disk_num, lba, secteur_num);
-		else if (strcmp("write", argv[1]) == 0)
+		else
+			kprint("Argument invalide\n");
+	}
+	else if (strcmp("disk", argv[0]) == 0)
+	{
+		if (argc < 2)
 		{
-			//le premier jeu de données est a argv[4]
-			//donc les data c est argc - 4
-			int	i;
-			i = 4;
-			while (i < argc - 4)
-			{
-				kprint(argv[i]);
-				if (hex_to_int(argv[i]) == 255)
-					kprint("tets");
-				kput_number(hex_to_int(argv[i++]));
-			}
-		}           
+			free(argv);
+			return ;
+		}
+		if (strcmp("parts", argv[1]) == 0)
+		{
+			
+		}
 	}
 	else
 		kprint_color("\ncommande non reconnu", RED_ON_BLACK);

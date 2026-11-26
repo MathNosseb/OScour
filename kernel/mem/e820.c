@@ -44,8 +44,9 @@ void	set_e820_entries(void)
 		int_to_hex(entries[i].base, base);
 		kprint("0x");
 		kprint(base); kprint (" ");
-		kput_number(entries[i].length/1024);
-		kprint("Ko ");
+		put_size(entries[i].length);
+		//kput_number(entries[i].length/1024);
+		kprint(" ");
 		kput_number(entries[i].type);
 		
 		if (entries[i].type == 1 && i != 0)

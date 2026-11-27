@@ -8,7 +8,7 @@ void	put_partitions(void)
 
 	i = 0;
 	//les partitions sont stocké dans le bootloader
-	part = get_partitions();
+	part = get_partitions(0);
 	if (!part)
 		return ;
 	while (i < 4)
@@ -26,13 +26,13 @@ void	put_partitions(void)
 	free(part);
 }
 
-struct partition	*get_partitions(void)
+struct partition	*get_partitions(int disk_num)
 {
 	struct partition	*part;
 	uint8_t				*adr;
 	int					i;
 
-	adr = load_ata(0, 0, 1);
+	adr = load_ata(0, disk_num, 1);
 	if (!adr)
 		return (NULL);
 	part = allocate(4 * sizeof(struct partition));

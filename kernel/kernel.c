@@ -24,7 +24,6 @@ void	_start(void)
 	init_entry();
 	init_memory_info();
 	put_fonctions();
-	put_partitions();
-	write_ata_at(0, 511, (uint8_t[]){1, 1, 1}, 3);
+	free(get_disk_info(0));
 	shell_loop();
 }

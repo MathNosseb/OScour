@@ -138,8 +138,8 @@ void	*load_ata(int disk_num, uint32_t lba, int sec_number)
 
 	for (int j = 0; j < sec_number; j++)
 	{
-		while (inb(0x1F7) & 0x80);
-		while (!(inb(0x1F7) & 0x08));
+		while (inb(0x1F7) & 0x80);//attendre que le controller est fini
+		while (!(inb(0x1F7) & 0x08));//attendre que les données soient prete
 		for (int i = 0; i < 256; i++)
 		{
 	    	uint16_t val = inw(0x1F0);

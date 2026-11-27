@@ -5,8 +5,16 @@ SECTIONS {
 	.text :
 	{
 		KEEP(*(.text.entry))
-		*(.text)
+		*(.text .text.*)
 	}
-	.data : { *(.data) }
-	.bss  : { *(.bss)  }
+	.rodata : { *(.rodata .rodata.*) }
+	.data : { *(.data .data.*) }
+	.bss  : {
+		__bss_start = .;
+		*(.bss .bss.*)
+		*(COMMON)
+		__bss_end = .;
+	}
+
+	/DISCARD/ : { *(.comment) *(.note*) *(.eh_frame*) }
 }

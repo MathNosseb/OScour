@@ -14,4 +14,4 @@ struct  partition
 }__attribute__((packed));
 
 void				put_partitions(void);
-struct partition	*get_partitions(void);
+struct partition	*get_partitions(int disk_num);

@@ -22,3 +22,4 @@ void        write_ata_at(int disk_num, uint64_t offset, uint8_t *data, uint32_t 
 void    hello_world(uint32_t lba);
 
 struct t_disk_info	*get_disk_info(int disk_num);
+void				put_disk_infos(int disk_num);

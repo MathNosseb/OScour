@@ -24,6 +24,5 @@ void	_start(void)
 	init_entry();
 	init_memory_info();
 	put_fonctions();
-	free(get_disk_info(0));
 	shell_loop();
 }

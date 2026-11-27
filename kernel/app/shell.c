@@ -164,15 +164,27 @@ static void    detect_command(char *command)
 	}
 	else if (strcmp("disk", argv[0]) == 0)
 	{
-		if (argc < 2)
+		if (argc < 3)
 		{
 			free(argv);
 			return ;
 		}
-		if (strcmp("parts", argv[1]) == 0)
+		if (strcmp("list", argv[1]) == 0)
+			put_disk_infos(atoi(argv[2]));
+		else if (strcmp("parts", argv[1]) == 0)
 		{
-			
+			if (argc < 7)
+			{
+				free(argv);
+				return ;
+			}
+			if (strcmp("create", argv[2]) == 0)
+			{
+				free(create_partition(atoi(argv[3]), atoi(argv[4]), atoi(argv[5]), atoi(argv[6])));
+			}
 		}
+		else
+			kprint("Argument invalide");
 	}
 	else
 		kprint_color("\ncommande non reconnu", RED_ON_BLACK);

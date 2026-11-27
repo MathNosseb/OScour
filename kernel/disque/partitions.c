@@ -1,29 +1,22 @@
 #include "partitions.h"
 
-void	put_partitions(void)
+void	put_partitions(struct partition *part)
 {
-	kprint("\n");
-	struct partition	*part;
-	int					i;
+	int	i;
 
 	i = 0;
-	//les partitions sont stocké dans le bootloader
-	part = get_partitions(0);
 	if (!part)
 		return ;
+	kprint("partitions : ");
 	while (i < 4)
 	{
 		if ((part[i]).flag == 0x80)
 		{
-			kprint("partition valide de ");
-			put_size(((part[i]).end_lba - (part[i]).start_lba) * 512);
-			kprint("\n");
+			put_size((part[i]).sec_count * 512);
+			kprint(", ");
 		}
-		else
-			kprint("partition invalide\n");
 		i++;
 	}
-	free(part);
 }
 
 struct partition	*get_partitions(int disk_num)
@@ -48,5 +41,26 @@ struct partition	*get_partitions(int disk_num)
 		i++;
 	}
 	free(adr);
+	return (part);
+}
+
+struct partition *create_partition(int disk_num, uint32_t start_lba, uint32_t sec_count, int part_number)
+{
+	struct partition *part;
+	
+	if (part_number < 0 && part_number > 3)
+		return (NULL);
+	part = allocate(sizeof(struct partition));
+	if (!part)
+		return (NULL);
+	part->flag = 0x80;
+	part->start_high_chs = 0xFF;
+	part->start_low_chs = 0xFF;
+	part->partition_type = 0x0C;
+	part->end_high_chs = 0xFF;
+	part->end_low_chs = 0xFF;
+	part->start_lba = start_lba;
+	part->sec_count = sec_count;
+	write_ata_at(disk_num, 446 + part_number * sizeof(struct partition), (uint8_t *)part, sizeof(struct partition));
 	return (part);
 }

@@ -24,7 +24,9 @@ compile :
 	secteurs=$$(( ($$(wc -c < Binaries/kernel.bin) + 511) / 512 )); \
 	truncate -s $$(( $$secteurs * 512 )) Binaries/kernel.bin; \
 	cat Binaries/bootloader.bin Binaries/kernel.bin > Binaries/os.bin; \
-	printf "$$(printf '%02x' $$secteurs)" | xxd -r -p | dd of=Binaries/os.bin bs=1 seek=167 conv=notrunc
+	printf "$$(printf '%02x' $$secteurs)" | xxd -r -p | dd of=Binaries/os.bin bs=1 seek=167 conv=notrunc; \
+	printf "$$(printf '%02x' $$secteurs)" | xxd -r -p | dd of=Binaries/os.bin bs=1 seek=458 conv=notrunc
+	truncate -s 1M Binaries/os.bin
 	$(MAKE) run
 
 programs :

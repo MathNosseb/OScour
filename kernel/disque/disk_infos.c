@@ -1,5 +1,20 @@
 #include "disk.h"
 
+void	put_disk_infos(int disk_num)
+{
+	struct t_disk_info *disk = get_disk_info(disk_num);
+	if (!disk)
+		return ;
+	kprint("\n");
+	kprint(disk->name);
+	put_size(disk->sector_number * 512);
+	kprint(" ");
+	put_partitions(disk->part);
+	free(disk->part);
+	free(disk->name);
+	free(disk);
+}
+
 struct t_disk_info	*get_disk_info(int disk_num)
 {
 	struct t_disk_info	*disk;
@@ -36,10 +51,5 @@ struct t_disk_info	*get_disk_info(int disk_num)
 	disk->sector_number = drive[60] | ((uint32_t)drive[61] << 16);
 	disk->disk_number = disk_num;
 	disk->part = get_partitions(disk_num);
-	put_size((disk->part->end_lba - disk->part->start_lba) * 512);
-	kprint(disk->name);
-	free(disk->part);
-	free(disk->name);
-	put_size(disk->sector_number * 512);
 	return (disk);
 }
